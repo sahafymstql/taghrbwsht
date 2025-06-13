@@ -1,73 +1,157 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <title>قائمة الملفات الصوتية</title>
+  <meta charset="UTF-8" />
+  <title>المحاضرات حسب الأقسام</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #fafafa;
+      color: #333;
       direction: rtl;
-      background-color: #f5f5f5;
       padding: 20px;
     }
+
     h1 {
-      color: #333;
+      text-align: center;
+      margin-bottom: 25px;
     }
-    .audio-item {
-      background: #fff;
-      margin-bottom: 15px;
-      padding: 10px;
-      border-radius: 8px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+
+    #backBtn {
+      margin-bottom: 20px;
+      display: none;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      font-size: 14px;
     }
+
+    #listContainer {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+    }
+
+    .item-card {
+      background: white;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.07);
+      transition: 0.2s ease;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .item-card:hover {
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+      transform: translateY(-3px);
+    }
+
+    .item-card h3 {
+      margin: 0;
+      word-break: break-word;
+    }
+
     audio {
+      margin-top: 10px;
       width: 100%;
-      margin-top: 5px;
+      outline: none;
+    }
+
+    .message {
+      text-align: center;
+      font-size: 18px;
+      color: #666;
+      grid-column: 1 / -1;
     }
   </style>
 </head>
 <body>
 
-  <h1>قائمة الملفات الصوتية</h1>
-  <div id="audioList">جاري التحميل...</div>
+  <h1>المحاضرات حسب الأقسام</h1>
+  <button id="backBtn">⬅ العودة إلى الأقسام</button>
+  <div id="listContainer">
+    <div class="message">جاري تحميل الأقسام...</div>
+  </div>
 
   <script>
-    // رابط API
     const apiUrl = 'https://nujume.com/list_audio.php';
+    const listContainer = document.getElementById('listContainer');
+    const backBtn = document.getElementById('backBtn');
 
-    // تحميل الملفات
-    fetch(apiUrl)
-      .then(response => response.json())
-      .then(data => {
-        const listContainer = document.getElementById('audioList');
-        listContainer.innerHTML = ''; // تفريغ القائمة
+    // الحالة: '' تعني عرض المجلدات الرئيسية، أو اسم المجلد الحالي
+    let currentFolder = '';
 
-        data.forEach(item => {
-          if (item.type === "file" && item.name.match(/\.(mp3|wav|ogg)$/i)) {
-            const div = document.createElement('div');
-            div.className = 'audio-item';
+    // تحميل المحتويات (مجلدات أو ملفات) من API
+    function loadContent(folder = '') {
+      currentFolder = folder;
+      backBtn.style.display = folder ? 'inline-block' : 'none';
 
-            const title = document.createElement('div');
-            title.textContent = item.name;
+      // بناء رابط API مع متغير folder إن وجد
+      const url = folder ? `${apiUrl}?folder=${encodeURIComponent(folder)}` : apiUrl;
 
-            const audio = document.createElement('audio');
-            audio.controls = true;
-            audio.src = item.url;
+      listContainer.innerHTML = '<div class="message">جاري التحميل...</div>';
 
-            div.appendChild(title);
-            div.appendChild(audio);
-            listContainer.appendChild(div);
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          listContainer.innerHTML = '';
+
+          if (!Array.isArray(data) || data.length === 0) {
+            listContainer.innerHTML = '<div class="message">لا توجد بيانات.</div>';
+            return;
           }
-        });
 
-        if (listContainer.innerHTML.trim() === '') {
-          listContainer.textContent = 'لا توجد ملفات صوتية.';
-        }
-      })
-      .catch(error => {
-        console.error('حدث خطأ:', error);
-        document.getElementById('audioList').textContent = 'فشل تحميل القائمة.';
-      });
+          if (!folder) {
+            // عرض المجلدات فقط في الصفحة الرئيسية
+            const folders = data.filter(item => item.type === 'folder');
+
+            if (folders.length === 0) {
+              listContainer.innerHTML = '<div class="message">لا توجد أقسام (مجلدات) لعرضها.</div>';
+              return;
+            }
+
+            folders.forEach(folderItem => {
+              const div = document.createElement('div');
+              div.className = 'item-card';
+              div.innerHTML = `<h3>📁 ${folderItem.name}</h3>`;
+              div.onclick = () => loadContent(folderItem.path);
+              listContainer.appendChild(div);
+            });
+
+          } else {
+            // داخل مجلد، عرض الملفات الصوتية فقط
+            const audioFiles = data.filter(item => item.type === 'file' && item.name.match(/\.(mp3|wav|ogg)$/i));
+
+            if (audioFiles.length === 0) {
+              listContainer.innerHTML = '<div class="message">لا توجد ملفات صوتية في هذا القسم.</div>';
+              return;
+            }
+
+            audioFiles.forEach(fileItem => {
+              const div = document.createElement('div');
+              div.className = 'item-card';
+              div.innerHTML = `
+                <h3>🎵 ${fileItem.name}</h3>
+                <audio controls src="${fileItem.url}"></audio>
+              `;
+              listContainer.appendChild(div);
+            });
+          }
+        })
+        .catch(err => {
+          console.error('خطأ في جلب البيانات:', err);
+          listContainer.innerHTML = '<div class="message">حدث خطأ أثناء تحميل البيانات.</div>';
+        });
+    }
+
+    backBtn.addEventListener('click', () => loadContent(''));
+
+    // التحميل الأولي - عرض المجلدات الرئيسية
+    loadContent();
   </script>
 
 </body>
