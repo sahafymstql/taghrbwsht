@@ -1,225 +1,205 @@
-<!DOCTYPE html><html lang="ar" dir="rtl">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تاغربوشت - المكتبة الصوتية</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f9f9f9;
-            color: #333;
-        }
-        header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 1rem;
-            text-align: center;
-        }
-        .intro {
-            text-align: center;
-            padding: 0.5rem 1rem;
-            font-size: 1.1rem;
-            color: #666;
-        }
-        .back-button {
-            text-align: center;
-            margin: 1rem;
-        }
-        .back-button button {
-            padding: 0.5rem 1rem;
-            font-size: 1rem;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 1rem;
-            padding: 1rem;
-        }
-        .card {
-            background-color: white;
-            padding: 1rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            text-align: center;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .card:hover {
-            transform: scale(1.03);
-            background-color: #f0f0f0;
-        }
-        .list-view {
-            padding: 1rem;
-        }
-        .list-item {
-            padding: 0.5rem;
-            border-bottom: 1px solid #ccc;
-            cursor: pointer;
-        }
-        .audio-player {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background-color: white;
-            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-            padding: 0.5rem;
-            display: none;
-        }
-        audio {
-            width: 100%;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تاغربوشت</title>
+  <style>
+    /* إعدادات أساسية */
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #fff;
+      color: #222;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    header {
+      text-align: center;
+      padding: 18px 12px;
+      background: #1d4ed8;
+      color: #fff;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    #backBtn {
+      margin: 12px;
+      display: none;
+      background: #2563eb;
+      color: #fff;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: calc(100% - 24px);
+      font-size: 1rem;
+    }
+    #backBtn:hover {
+      background: #1e40af;
+    }
+    main {
+      flex: 1;
+      padding: 12px;
+    }
+    #listContainer {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+    }
+    .item-card {
+      background: #f9fafb;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.3s;
+      word-break: break-word;
+    }
+    .item-card:hover {
+      background: #eef2ff;
+    }
+    .play-button {
+      background: #2563eb;
+      color: #fff;
+      padding: 6px 8px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+    .play-button:hover {
+      background: #1e40af;
+    }
+    .message {
+      text-align: center;
+      padding: 30px 0;
+      color: #555;
+    }
+    /* مشغل ثابت أسفل الشاشة */
+    #audioPlayerContainer {
+      position: fixed;
+      bottom: -100px;
+      left: 0;
+      right: 0;
+      background: #1d4ed8;
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      transition: bottom 0.4s ease;
+      box-shadow: 0 -3px 10px rgba(0,0,0,0.2);
+    }
+    #audioPlayerContainer.active {
+      bottom: 0;
+    }
+    #audioFileName {
+      color: #fff;
+      flex: 1;
+      font-size: 0.9rem;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    #audioPlayerContainer audio {
+      margin: 0 8px;
+      width: 120px;
+    }
+    #closePlayerBtn {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <h1>تاغربوشت</h1>
-    </header>
-    <div class="intro">
-        مرحباً بكم في مكتبة تاغربوشت الصوتية – منبع العلم والمعرفة بلغتنا الطارقية الجميلة.<br>
-        استمع إلى دروس الفقه، الحديث، التوحيد، السيرة، والتفسير، ضمن مكتبة مرتبة بعناية وسهلة الاستخدام.
-    </div>
-    <div class="back-button" id="backButton" style="display: none;">
-        <button onclick="showCategories()">◀ العودة إلى التصنيفات</button>
-    </div>
-    <div id="content" class="grid"></div>
-    <div class="list-view" id="listView"></div>
-    <div class="audio-player" id="audioPlayer">
-        <audio controls id="mainAudio"></audio>
-    </div><script>
-    const categories = {
-        'تصنيف الفقه والحديث': {
-            'قسم الفقه': [
-                'الدروس المهمة بالطارقية',
-                'دروس رمضانية بالطارقية',
-                'اركان الاسلام بالطارقية',
-                'مسائل الحج والعمرة والزيارة'
-            ],
-            'قسم الحديث': [
-                '100 حديث بالطارقية',
-                'شرح الأربعين النووية'
-            ]
-        },
-        'تصنيف التوحيد': [
-            'كبائر الذنوب',
-            'إقامة البراهين في حكم من أستغاث بغير الله'
-        ],
-        'تصنيف محاضرات عامة والسيرة': [
-            'السيرة بالطارقية',
-            'تسجيلات الدروس العلمية',
-            'ملخص المواريث'
-        ],
-        'التفسير': []
+
+  <header>تاغربوشت</header>
+  <button id="backBtn">⬅ العودة إلى الأقسام</button>
+  <main>
+    <div id="listContainer"><div class="message">جاري تحميل الأقسام...</div></div>
+  </main>
+
+  <div id="audioPlayerContainer" aria-live="polite">
+    <div id="audioFileName"></div>
+    <audio controls></audio>
+    <button id="closePlayerBtn">×</button>
+  </div>
+
+  <script>
+    const apiUrl = 'https://nujume.com/list_audio.php';
+    const listContainer = document.getElementById('listContainer');
+    const backBtn = document.getElementById('backBtn');
+    const audioContainer = document.getElementById('audioPlayerContainer');
+    const audioElem = audioContainer.querySelector('audio');
+    const audioNameElem = document.getElementById('audioFileName');
+    const closeBtn = document.getElementById('closePlayerBtn');
+
+    let currentFolder = '';
+
+    function loadContent(folder = '') {
+      currentFolder = folder;
+      backBtn.style.display = folder ? 'block' : 'none';
+      listContainer.innerHTML = '<div class="message">جاري التحميل...</div>';
+
+      const url = folder ? apiUrl + '?folder=' + encodeURIComponent(folder) : apiUrl;
+
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          listContainer.innerHTML = '';
+          if (!Array.isArray(data) || data.length === 0) {
+            listContainer.innerHTML = '<div class="message">لا توجد عناصر.</div>';
+            return;
+          }
+          if (!folder) {
+            const folders = data.filter(i => i.type === 'folder');
+            folders.length === 0 && (listContainer.innerHTML = '<div class="message">لا توجد أقسام.</div>');
+            folders.forEach(f => {
+              const div = document.createElement('div');
+              div.className = 'item-card';
+              div.textContent = f.name;
+              div.onclick = () => loadContent(f.path);
+              listContainer.appendChild(div);
+            });
+          } else {
+            const files = data.filter(i => i.type === 'file' && /\.(mp3|wav|ogg)$/i.test(i.name));
+            files.length === 0 && (listContainer.innerHTML = '<div class="message">لا توجد ملفات صوتية.</div>');
+            files.forEach(f => {
+              const div = document.createElement('div');
+              div.className = 'item-card';
+              div.innerHTML = `<div>${f.name}</div><button class="play-button">تشغيل</button>`;
+              div.querySelector('button').onclick = () => playAudio(f.url, f.name);
+              listContainer.appendChild(div);
+            });
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          listContainer.innerHTML = '<div class="message">حدث خطأ.</div>';
+        });
+    }
+
+    function playAudio(url, name) {
+      audioElem.src = url;
+      audioElem.play();
+      audioNameElem.textContent = name;
+      audioContainer.classList.add('active');
+    }
+
+    closeBtn.onclick = () => {
+      audioContainer.classList.remove('active');
+      audioElem.pause();
     };
 
-    const content = document.getElementById('content');
-    const listView = document.getElementById('listView');
-    const audioPlayer = document.getElementById('audioPlayer');
-    const mainAudio = document.getElementById('mainAudio');
-    const backButton = document.getElementById('backButton');
+    backBtn.onclick = () => loadContent('');
 
-    let baseUrl = 'https://nujume.com/list_audio.php?folder=';
+    loadContent();
 
-    function createCard(name, onClick) {
-        const div = document.createElement('div');
-        div.className = 'card';
-        div.textContent = name;
-        div.onclick = () => onClick(name);
-        return div;
-    }
-
-    function showCategories() {
-        listView.innerHTML = '';
-        content.innerHTML = '';
-        backButton.style.display = 'none';
-        for (let cat in categories) {
-            content.appendChild(createCard(cat, showSections));
-        }
-    }
-
-    function showSections(category) {
-        content.innerHTML = '';
-        listView.innerHTML = '';
-        backButton.style.display = 'block';
-
-        if (category === 'التفسير') {
-            fetchAndShowAudio('التفسير');
-            return;
-        }
-
-        const data = categories[category];
-
-        for (let section in data) {
-            if (Array.isArray(data)) {
-                data.forEach(folder => {
-                    listView.appendChild(createListItem(folder));
-                });
-                break;
-            }
-            const title = document.createElement('h3');
-            title.textContent = section;
-            listView.appendChild(title);
-            data[section].forEach(folder => {
-                listView.appendChild(createListItem(folder));
-            });
-        }
-    }
-
-    function createListItem(name) {
-        const div = document.createElement('div');
-        div.className = 'list-item';
-        div.textContent = name;
-        div.onclick = () => fetchAndShowAudio(name);
-        return div;
-    }
-
-    function fetchAndShowAudio(folderName) {
-        content.innerHTML = '';
-        listView.innerHTML = '<p>جاري تحميل الصوتيات...</p>';
-        backButton.style.display = 'block';
-
-        fetch(baseUrl + encodeURIComponent(folderName))
-            .then(res => res.json())
-            .then(data => {
-                listView.innerHTML = '';
-                const audioFiles = data.filter(x => x.type === 'file');
-                audioFiles.sort((a, b) => naturalSort(a.name, b.name));
-
-                if (audioFiles.length === 0) {
-                    listView.innerHTML = '<p>لا توجد ملفات صوتية.</p>';
-                    return;
-                }
-
-                audioFiles.forEach(file => {
-                    const item = document.createElement('div');
-                    item.className = 'list-item';
-                    item.textContent = file.name;
-                    item.onclick = () => {
-                        mainAudio.src = file.url;
-                        audioPlayer.style.display = 'block';
-                        mainAudio.play();
-                    };
-                    listView.appendChild(item);
-                });
-            })
-            .catch(() => {
-                listView.innerHTML = '<p>حدث خطأ أثناء تحميل الملفات.</p>';
-            });
-    }
-
-    function naturalSort(a, b) {
-        return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
-    }
-
-    showCategories();
-</script>
-
+  </script>
 </body>
 </html>
