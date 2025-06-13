@@ -1,260 +1,205 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>تاغربوشت</title>
   <style>
-    /* خطوط وألوان */
+    /* إعدادات أساسية */
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f9fafb;
+      font-family: 'Segoe UI', sans-serif;
+      background: #fff;
       color: #222;
       margin: 0;
-      padding: 20px;
-      min-height: 100vh;
+      padding: 0;
       display: flex;
       flex-direction: column;
+      min-height: 100vh;
     }
-
-    h1 {
+    header {
       text-align: center;
-      margin-bottom: 30px;
-      font-weight: 700;
-      font-size: 2rem;
-      color: #1d4ed8; /* أزرق مميز */
-      user-select: none;
+      padding: 18px 12px;
+      background: #1d4ed8;
+      color: #fff;
+      font-size: 1.5rem;
+      font-weight: bold;
     }
-
     #backBtn {
-      margin-bottom: 20px;
+      margin: 12px;
       display: none;
-      cursor: pointer;
-      background-color: #2563eb;
-      color: white;
+      background: #2563eb;
+      color: #fff;
+      padding: 10px;
       border: none;
-      padding: 10px 18px;
-      border-radius: 8px;
-      font-size: 16px;
-      transition: background-color 0.3s ease;
-    }
-    #backBtn:hover {
-      background-color: #1e40af;
-    }
-
-    #listContainer {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-      flex-grow: 1;
-    }
-
-    .item-card {
-      background: white;
-      padding: 18px 22px;
-      border-radius: 14px;
-      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
-      transition: box-shadow 0.3s ease, transform 0.2s ease;
-      cursor: pointer;
-      user-select: none;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .item-card:hover {
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-      transform: translateY(-3px);
-    }
-
-    .item-name {
-      font-weight: 600;
-      font-size: 1.1rem;
-      word-break: break-word;
-      flex-grow: 1;
-      margin-right: 15px;
-    }
-
-    .folder-icon {
-      font-size: 1.7rem;
-      color: #2563eb;
-      margin-left: 12px;
-      user-select: none;
-    }
-
-    .play-button {
-      background-color: #2563eb;
-      border: none;
-      color: white;
-      padding: 8px 14px;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 14px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      user-select: none;
-    }
-    .play-button:hover {
-      background-color: #1e40af;
-    }
-
-    .message {
-      grid-column: 1 / -1;
-      font-size: 18px;
-      color: #666;
-      text-align: center;
-      padding: 30px 0;
-      user-select: none;
-    }
-
-    /* مشغل الصوت الثابت أسفل الصفحة */
-    #audioPlayerContainer {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #1e40af;
-      color: white;
-      padding: 12px 20px;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      box-shadow: 0 -3px 15px rgba(0,0,0,0.3);
-      font-weight: 600;
-      user-select: none;
-      transform: translateY(100%);
-      transition: transform 0.4s ease;
-      z-index: 9999;
-    }
-
-    #audioPlayerContainer.active {
-      transform: translateY(0);
-    }
-
-    #audioPlayerContainer audio {
-      flex-grow: 1;
-      outline: none;
       border-radius: 6px;
-    }
-
-    #audioFileName {
-      max-width: 250px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      cursor: pointer;
+      width: calc(100% - 24px);
       font-size: 1rem;
     }
-
+    #backBtn:hover {
+      background: #1e40af;
+    }
+    main {
+      flex: 1;
+      padding: 12px;
+    }
+    #listContainer {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+    }
+    .item-card {
+      background: #f9fafb;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.3s;
+      word-break: break-word;
+    }
+    .item-card:hover {
+      background: #eef2ff;
+    }
+    .play-button {
+      background: #2563eb;
+      color: #fff;
+      padding: 6px 8px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+    .play-button:hover {
+      background: #1e40af;
+    }
+    .message {
+      text-align: center;
+      padding: 30px 0;
+      color: #555;
+    }
+    /* مشغل ثابت أسفل الشاشة */
+    #audioPlayerContainer {
+      position: fixed;
+      bottom: -100px;
+      left: 0;
+      right: 0;
+      background: #1d4ed8;
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      transition: bottom 0.4s ease;
+      box-shadow: 0 -3px 10px rgba(0,0,0,0.2);
+    }
+    #audioPlayerContainer.active {
+      bottom: 0;
+    }
+    #audioFileName {
+      color: #fff;
+      flex: 1;
+      font-size: 0.9rem;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    #audioPlayerContainer audio {
+      margin: 0 8px;
+      width: 120px;
+    }
     #closePlayerBtn {
       background: transparent;
       border: none;
-      color: white;
-      font-size: 24px;
+      color: #fff;
+      font-size: 1.2rem;
       cursor: pointer;
-      font-weight: 900;
-      line-height: 1;
-      user-select: none;
-      padding: 0 8px;
-      transition: color 0.3s ease;
-    }
-    #closePlayerBtn:hover {
-      color: #ff6b6b;
     }
   </style>
 </head>
 <body>
 
-  <h1>تاغربوشت</h1>
-  <button id="backBtn" aria-label="العودة إلى الأقسام">⬅ العودة إلى الأقسام</button>
+  <header>تاغربوشت</header>
+  <button id="backBtn">⬅ العودة إلى الأقسام</button>
+  <main>
+    <div id="listContainer"><div class="message">جاري تحميل الأقسام...</div></div>
+  </main>
 
-  <div id="listContainer">
-    <div class="message">جاري تحميل الأقسام...</div>
-  </div>
-
-  <!-- مشغل الصوت الثابت -->
-  <div id="audioPlayerContainer" role="region" aria-live="polite" aria-label="مشغل الصوت">
-    <div id="audioFileName" title=""></div>
+  <div id="audioPlayerContainer" aria-live="polite">
+    <div id="audioFileName"></div>
     <audio controls></audio>
-    <button id="closePlayerBtn" aria-label="إغلاق المشغل">×</button>
+    <button id="closePlayerBtn">×</button>
   </div>
 
-<script>
-  const apiUrl = 'https://nujume.com/list_audio.php';
-  const listContainer = document.getElementById('listContainer');
-  const backBtn = document.getElementById('backBtn');
-  const audioPlayerContainer = document.getElementById('audioPlayerContainer');
-  const audioElement = audioPlayerContainer.querySelector('audio');
-  const audioFileName = document.getElementById('audioFileName');
-  const closePlayerBtn = document.getElementById('closePlayerBtn');
+  <script>
+    const apiUrl = 'https://nujume.com/list_audio.php';
+    const listContainer = document.getElementById('listContainer');
+    const backBtn = document.getElementById('backBtn');
+    const audioContainer = document.getElementById('audioPlayerContainer');
+    const audioElem = audioContainer.querySelector('audio');
+    const audioNameElem = document.getElementById('audioFileName');
+    const closeBtn = document.getElementById('closePlayerBtn');
 
-  let currentFolder = '';
+    let currentFolder = '';
 
-  // تحميل المحتويات من API
-  function loadContent(folder = '') {
-    currentFolder = folder;
-    backBtn.style.display = folder ? 'inline-block' : 'none';
+    function loadContent(folder = '') {
+      currentFolder = folder;
+      backBtn.style.display = folder ? 'block' : 'none';
+      listContainer.innerHTML = '<div class="message">جاري التحميل...</div>';
 
-    const url = folder ? `${apiUrl}?folder=${encodeURIComponent(folder)}` : apiUrl;
+      const url = folder ? apiUrl + '?folder=' + encodeURIComponent(folder) : apiUrl;
 
-    listContainer.innerHTML = '<div class="message">جاري التحميل...</div>';
-
-    fetch(url)
-      .then(res => res.json())
-      .then(data => {
-        listContainer.innerHTML = '';
-
-        if (!Array.isArray(data) || data.length === 0) {
-          listContainer.innerHTML = '<div class="message">لا توجد بيانات.</div>';
-          return;
-        }
-
-        if (!folder) {
-          // عرض المجلدات فقط
-          const folders = data.filter(item => item.type === 'folder');
-          if (folders.length === 0) {
-            listContainer.innerHTML = '<div class="message">لا توجد أقسام (مجلدات) لعرضها.</div>';
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          listContainer.innerHTML = '';
+          if (!Array.isArray(data) || data.length === 0) {
+            listContainer.innerHTML = '<div class="message">لا توجد عناصر.</div>';
             return;
           }
-
-          folders.forEach(folderItem => {
-            const div = document.createElement('div');
-            div.className = 'item-card';
-            div.setAttribute('role', 'button');
-            div.setAttribute('tabindex', '0');
-            div.innerHTML = `
-              <span class="item-name">${folderItem.name}</span>
-              <span class="folder-icon" aria-hidden="true">📁</span>
-            `;
-            div.onclick = () => loadContent(folderItem.path);
-            div.onkeydown = (e) => {
-              if(e.key === 'Enter' || e.key === ' ') {
-                loadContent(folderItem.path);
-                e.preventDefault();
-              }
-            };
-            listContainer.appendChild(div);
-          });
-
-        } else {
-          // عرض الملفات الصوتية فقط
-          const audioFiles = data.filter(item => item.type === 'file' && item.name.match(/\.(mp3|wav|ogg)$/i));
-
-          if (audioFiles.length === 0) {
-            listContainer.innerHTML = '<div class="message">لا توجد ملفات صوتية في هذا القسم.</div>';
-            return;
+          if (!folder) {
+            const folders = data.filter(i => i.type === 'folder');
+            folders.length === 0 && (listContainer.innerHTML = '<div class="message">لا توجد أقسام.</div>');
+            folders.forEach(f => {
+              const div = document.createElement('div');
+              div.className = 'item-card';
+              div.textContent = f.name;
+              div.onclick = () => loadContent(f.path);
+              listContainer.appendChild(div);
+            });
+          } else {
+            const files = data.filter(i => i.type === 'file' && /\.(mp3|wav|ogg)$/i.test(i.name));
+            files.length === 0 && (listContainer.innerHTML = '<div class="message">لا توجد ملفات صوتية.</div>');
+            files.forEach(f => {
+              const div = document.createElement('div');
+              div.className = 'item-card';
+              div.innerHTML = `<div>${f.name}</div><button class="play-button">تشغيل</button>`;
+              div.querySelector('button').onclick = () => playAudio(f.url, f.name);
+              listContainer.appendChild(div);
+            });
           }
+        })
+        .catch(err => {
+          console.error(err);
+          listContainer.innerHTML = '<div class="message">حدث خطأ.</div>';
+        });
+    }
 
-          audioFiles.forEach(fileItem => {
-            const div = document.createElement('div');
-            div.className = 'item-card';
-            div.innerHTML = `
-              <span class="item-name">${fileItem.name}</span>
-              <button class="play-button" aria-label="تشغيل ${fileItem.name}">تشغيل</button>
-            `;
-            const btn = div.querySelector('button.play-button');
-            btn.onclick = () => playAudio(fileItem.url, fileItem.name);
-            listContainer.appendChild(div);
-          });
-        }
-      })
-      .catch(err => {
-        console.error('خطأ في جلب البيانات:', err);
-        listContainer.innerHTML = '<div class="message">حدث خط
+    function playAudio(url, name) {
+      audioElem.src = url;
+      audioElem.play();
+      audioNameElem.textContent = name;
+      audioContainer.classList.add('active');
+    }
+
+    closeBtn.onclick = () => {
+      audioContainer.classList.remove('active');
+      audioElem.pause();
+    };
+
+    backBtn.onclick = () => loadContent('');
+
+    loadContent();
+
+  </script>
+</body>
+</html>
