@@ -72,7 +72,7 @@ a {
     const loadList = async () => {
       const folder = getFolder();
       try {
-        const response = await fetch(`https://nujume.com/api.php?folder=${encodeURIComponent(folder)}`);
+        const response = await fetch(`https://nujume.com/list_audio.php?folder=${encodeURIComponent(folder)}`);
         const data = await response.json();
 
         listElement.innerHTML = '';
