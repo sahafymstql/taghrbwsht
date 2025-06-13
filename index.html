@@ -22,16 +22,8 @@
       font-size: 1.5rem;
       font-weight: bold;
     }
-    #searchBox {
-      margin: 12px;
-      width: calc(100% - 24px);
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 1rem;
-    }
     #backBtn {
-      margin: 0 12px 12px;
+      margin: 12px;
       display: none;
       background: #2563eb;
       color: #fff;
@@ -49,6 +41,14 @@
       flex: 1;
       padding: 12px;
     }
+    #searchInput {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
     #listContainer {
       display: flex;
       flex-direction: column;
@@ -60,16 +60,18 @@
       border-radius: 8px;
       padding: 12px;
       display: flex;
-      flex-direction: column;
-      gap: 6px;
-      cursor: pointer;
+      align-items: center;
+      justify-content: space-between;
       transition: background 0.3s;
     }
     .item-card:hover {
       background: #eef2ff;
     }
+    .item-icon {
+      margin-left: 8px;
+      color: #2563eb;
+    }
     .play-button {
-      align-self: start;
       background: #2563eb;
       color: #fff;
       padding: 6px 12px;
@@ -88,17 +90,15 @@
     }
     #audioPlayerContainer {
       position: fixed;
-      bottom: -150px;
+      bottom: -100px;
       left: 0;
       right: 0;
       background: #1d4ed8;
       display: flex;
       align-items: center;
-      padding: 14px;
-      gap: 12px;
+      padding: 10px;
       transition: bottom 0.4s ease;
       box-shadow: 0 -3px 10px rgba(0,0,0,0.2);
-      z-index: 100;
     }
     #audioPlayerContainer.active {
       bottom: 0;
@@ -112,117 +112,119 @@
       text-overflow: ellipsis;
     }
     #audioPlayerContainer audio {
-      flex: none;
-      width: 300px;
+      margin: 0 8px;
+      width: 140px;
     }
     #closePlayerBtn {
       background: transparent;
       border: none;
       color: #fff;
-      font-size: 1.5rem;
+      font-size: 1.2rem;
       cursor: pointer;
     }
   </style>
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
-<body>
-  <header>تاغربوشت</header>
-  <input type="text" id="searchBox" placeholder="ابحث عن ملف صوتي...">
+<body>  <header><i class="fas fa-mosque item-icon"></i> تاغربوشت</header>
   <button id="backBtn">⬅ العودة إلى الأقسام</button>
   <main>
+    <input type="text" id="searchInput" placeholder="🔍 ابحث باسم المحاضرة...">
     <div id="listContainer"><div class="message">جاري تحميل الأقسام...</div></div>
-  </main>
-  <div id="audioPlayerContainer" aria-live="polite">
+  </main>  <div id="audioPlayerContainer" aria-live="polite">
     <div id="audioFileName"></div>
     <audio controls></audio>
     <button id="closePlayerBtn">×</button>
-  </div>
-  <script>
+  </div>  <script>
     const apiUrl = 'https://nujume.com/list_audio.php';
     const listContainer = document.getElementById('listContainer');
     const backBtn = document.getElementById('backBtn');
-    const searchBox = document.getElementById('searchBox');
     const audioContainer = document.getElementById('audioPlayerContainer');
     const audioElem = audioContainer.querySelector('audio');
     const audioNameElem = document.getElementById('audioFileName');
-    const closeBtn = document.getElementById('closePlayerBtn');let currentFolder = '';
-let fullList = [];
+    const closeBtn = document.getElementById('closePlayerBtn');
+    const searchInput = document.getElementById('searchInput');
 
-function loadContent(folder = '') {
-  currentFolder = folder;
-  backBtn.style.display = folder ? 'block' : 'none';
-  listContainer.innerHTML = '<div class="message">جاري التحميل...</div>';
+    let currentFolder = '';
+    let allItems = [];
 
-  const url = folder ? apiUrl + '?folder=' + encodeURIComponent(folder) : apiUrl;
+    function naturalSort(a, b) {
+      return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
+    }
 
-  fetch(url)
-    .then(res => res.json())
-    .then(data => {
-      if (!Array.isArray(data)) return;
-      fullList = data;
-      renderList();
-    })
-    .catch(err => {
-      console.error(err);
-      listContainer.innerHTML = '<div class="message">حدث خطأ.</div>';
-    });
-}
+    function loadContent(folder = '') {
+      currentFolder = folder;
+      backBtn.style.display = folder ? 'block' : 'none';
+      listContainer.innerHTML = '<div class="message">جاري التحميل...</div>';
 
-function renderList() {
-  const search = searchBox.value.trim().toLowerCase();
-  let data = fullList;
+      const url = folder ? apiUrl + '?folder=' + encodeURIComponent(folder) : apiUrl;
 
-  listContainer.innerHTML = '';
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          listContainer.innerHTML = '';
+          allItems = data.filter(i => i.type === 'file' && /\.(mp3|wav|ogg)$/i.test(i.name)).sort(naturalSort);
 
-  if (!currentFolder) {
-    const folders = data.filter(i => i.type === 'folder' && i.name.toLowerCase().includes(search));
-    if (folders.length === 0) return listContainer.innerHTML = '<div class="message">لا توجد أقسام.</div>';
-    folders.forEach(f => {
-      const div = document.createElement('div');
-      div.className = 'item-card';
-      div.textContent = f.name;
-      div.onclick = () => loadContent(f.path);
-      listContainer.appendChild(div);
-    });
-  } else {
-    let files = data.filter(i => i.type === 'file' && /\.(mp3|wav|ogg)$/i.test(i.name));
-    if (search) files = files.filter(f => f.name.toLowerCase().includes(search));
-    files.sort((a, b) => {
-      const nameA = a.name.match(/\d+/g)?.map(Number) || [];
-      const nameB = b.name.match(/\d+/g)?.map(Number) || [];
-      for (let i = 0; i < Math.max(nameA.length, nameB.length); i++) {
-        if ((nameA[i] || 0) !== (nameB[i] || 0)) return (nameA[i] || 0) - (nameB[i] || 0);
-      }
-      return a.name.localeCompare(b.name);
-    });
+          if (!folder) {
+            const folders = data.filter(i => i.type === 'folder').sort(naturalSort);
+            if (folders.length === 0) {
+              listContainer.innerHTML = '<div class="message">لا توجد أقسام.</div>';
+              return;
+            }
+            folders.forEach(f => {
+              const div = document.createElement('div');
+              div.className = 'item-card';
+              div.innerHTML = `<span><i class='fas fa-folder item-icon'></i> ${f.name}</span>`;
+              div.onclick = () => loadContent(f.path);
+              listContainer.appendChild(div);
+            });
+          } else {
+            if (allItems.length === 0) {
+              listContainer.innerHTML = '<div class="message">لا توجد ملفات صوتية.</div>';
+              return;
+            }
+            displayItems(allItems);
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          listContainer.innerHTML = '<div class="message">حدث خطأ.</div>';
+        });
+    }
 
-    if (files.length === 0) return listContainer.innerHTML = '<div class="message">لا توجد ملفات صوتية.</div>';
-    files.forEach(f => {
-      const div = document.createElement('div');
-      div.className = 'item-card';
-      div.innerHTML = `<div>${f.name}</div><button class="play-button">تشغيل</button>`;
-      div.querySelector('button').onclick = () => playAudio(f.url, f.name);
-      listContainer.appendChild(div);
-    });
-  }
-}
+    function displayItems(items) {
+      listContainer.innerHTML = '';
+      items.forEach(f => {
+        const div = document.createElement('div');
+        div.className = 'item-card';
+        div.innerHTML = `
+          <span><i class='fas fa-headphones-alt item-icon'></i> ${f.name}</span>
+          <button class="play-button">تشغيل</button>
+        `;
+        div.querySelector('button').onclick = () => playAudio(f.url, f.name);
+        listContainer.appendChild(div);
+      });
+    }
 
-function playAudio(url, name) {
-  audioElem.src = url;
-  audioElem.play();
-  audioNameElem.textContent = name;
-  audioContainer.classList.add('active');
-}
+    function playAudio(url, name) {
+      audioElem.src = url;
+      audioElem.play();
+      audioNameElem.textContent = name;
+      audioContainer.classList.add('active');
+    }
 
-closeBtn.onclick = () => {
-  audioContainer.classList.remove('active');
-  audioElem.pause();
-};
+    closeBtn.onclick = () => {
+      audioContainer.classList.remove('active');
+      audioElem.pause();
+    };
 
-backBtn.onclick = () => loadContent();
-searchBox.oninput = () => renderList();
+    backBtn.onclick = () => loadContent('');
 
-loadContent();
+    searchInput.oninput = () => {
+      const term = searchInput.value.trim().toLowerCase();
+      const filtered = allItems.filter(f => f.name.toLowerCase().includes(term));
+      displayItems(filtered);
+    };
 
-  </script>
-</body>
+    loadContent();
+  </script></body>
 </html>
