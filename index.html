@@ -19,9 +19,22 @@
         }
         .intro {
             text-align: center;
-            padding: 0.5rem;
+            padding: 0.5rem 1rem;
             font-size: 1.1rem;
             color: #666;
+        }
+        .back-button {
+            text-align: center;
+            margin: 1rem;
+        }
+        .back-button button {
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
         }
         .grid {
             display: grid;
@@ -70,7 +83,11 @@
         <h1>تاغربوشت</h1>
     </header>
     <div class="intro">
-        مرحباً بكم في مكتبة تاغربوشت الصوتية – منبع العلم والمعرفة بلغتنا الطارقية الجميلة.
+        مرحباً بكم في مكتبة تاغربوشت الصوتية – منبع العلم والمعرفة بلغتنا الطارقية الجميلة.<br>
+        استمع إلى دروس الفقه، الحديث، التوحيد، السيرة، والتفسير، ضمن مكتبة مرتبة بعناية وسهلة الاستخدام.
+    </div>
+    <div class="back-button" id="backButton" style="display: none;">
+        <button onclick="showCategories()">◀ العودة إلى التصنيفات</button>
     </div>
     <div id="content" class="grid"></div>
     <div class="list-view" id="listView"></div>
@@ -106,6 +123,7 @@
     const listView = document.getElementById('listView');
     const audioPlayer = document.getElementById('audioPlayer');
     const mainAudio = document.getElementById('mainAudio');
+    const backButton = document.getElementById('backButton');
 
     let baseUrl = 'https://nujume.com/list_audio.php?folder=';
 
@@ -120,6 +138,7 @@
     function showCategories() {
         listView.innerHTML = '';
         content.innerHTML = '';
+        backButton.style.display = 'none';
         for (let cat in categories) {
             content.appendChild(createCard(cat, showSections));
         }
@@ -128,6 +147,7 @@
     function showSections(category) {
         content.innerHTML = '';
         listView.innerHTML = '';
+        backButton.style.display = 'block';
 
         if (category === 'التفسير') {
             fetchAndShowAudio('التفسير');
@@ -163,6 +183,7 @@
     function fetchAndShowAudio(folderName) {
         content.innerHTML = '';
         listView.innerHTML = '<p>جاري تحميل الصوتيات...</p>';
+        backButton.style.display = 'block';
 
         fetch(baseUrl + encodeURIComponent(folderName))
             .then(res => res.json())
