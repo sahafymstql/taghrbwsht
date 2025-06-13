@@ -6,7 +6,7 @@
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #f3f4f6;
+      background: #fff;
       color: #222;
       margin: 0;
       padding: 0;
@@ -37,42 +37,38 @@
     #backBtn:hover {
       background: #1e40af;
     }
-    #searchInput {
-      margin: 0 12px 12px;
-      padding: 10px;
-      width: calc(100% - 24px);
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      display: none;
-    }
     main {
       flex: 1;
       padding: 12px;
     }
+    #searchBox {
+      display: none;
+      margin-bottom: 16px;
+    }
+    #searchInput {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
     #listContainer {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
     }
     .item-card {
-      background: #fff;
+      background: #f9fafb;
       border: 1px solid #ddd;
       border-radius: 8px;
       padding: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      text-align: center;
       cursor: pointer;
       transition: background 0.3s;
+      word-break: break-word;
     }
     .item-card:hover {
-      background: #e0e7ff;
-    }
-    .item-card .label {
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      background: #eef2ff;
     }
     .play-button {
       background: #2563eb;
@@ -82,6 +78,7 @@
       border-radius: 6px;
       font-size: 0.9rem;
       cursor: pointer;
+      margin-top: 6px;
     }
     .play-button:hover {
       background: #1e40af;
@@ -93,56 +90,56 @@
     }
     #audioPlayerContainer {
       position: fixed;
-      bottom: -100px;
+      bottom: 0;
       left: 0;
       right: 0;
       background: #1d4ed8;
-      display: flex;
+      display: none;
       flex-direction: column;
-      padding: 12px;
-      transition: bottom 0.4s ease;
+      padding: 10px 16px 16px;
       box-shadow: 0 -3px 10px rgba(0,0,0,0.2);
-      color: #fff;
+      z-index: 999;
     }
     #audioPlayerContainer.active {
-      bottom: 0;
+      display: flex;
     }
-    .player-header {
+    #playerTop {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 8px;
     }
     #audioFileName {
-      font-size: 1rem;
-      font-weight: bold;
+      color: #fff;
+      font-size: 0.95rem;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
+      flex: 1;
+    }
+    #closePlayerBtn {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.4rem;
+      cursor: pointer;
     }
     #audioPlayerContainer audio {
       width: 100%;
     }
-    #closePlayerBtn {
-      background: transparent;
-      border: none;
-      color: #fff;
-      font-size: 1.2rem;
-      cursor: pointer;
-    }
   </style>
 </head>
 <body>
-  <header>🎧 مكتبة تاغربوشت الصوتية</header>
+  <header>تاغربوشت</header>
   <button id="backBtn">⬅ العودة إلى الأقسام</button>
-  <input type="text" id="searchInput" placeholder="🔍 ابحث عن ملف صوتي...">
   <main>
+    <div id="searchBox"><input type="text" id="searchInput" placeholder="ابحث عن ملف صوتي..."></div>
     <div id="listContainer"><div class="message">جاري تحميل الأقسام...</div></div>
   </main>
   <div id="audioPlayerContainer" aria-live="polite">
-    <div class="player-header">
+    <div id="playerTop">
       <div id="audioFileName"></div>
-      <button id="closePlayerBtn">❌</button>
+      <button id="closePlayerBtn">✖</button>
     </div>
     <audio controls></audio>
   </div>
@@ -150,25 +147,19 @@
     const apiUrl = 'https://nujume.com/list_audio.php';
     const listContainer = document.getElementById('listContainer');
     const backBtn = document.getElementById('backBtn');
-    const searchInput = document.getElementById('searchInput');
     const audioContainer = document.getElementById('audioPlayerContainer');
     const audioElem = audioContainer.querySelector('audio');
     const audioNameElem = document.getElementById('audioFileName');
-    const closeBtn = document.getElementById('closePlayerBtn');let currentFolder = '';
-let allFiles = [];
-
-function naturalSort(a, b) {
-  return a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
-}
-
-function loadContent(folder = '') {
+    const closeBtn = document.getElementById('closePlayerBtn');
+    const searchBox = document.getElementById('searchBox');
+    const searchInput = document.getElementById('searchInput');
+    let currentFolder = '';
+    let allFiles = [];function loadContent(folder = '') {
   currentFolder = folder;
   backBtn.style.display = folder ? 'block' : 'none';
-  searchInput.style.display = folder ? 'block' : 'none';
+  searchBox.style.display = folder ? 'block' : 'none';
   listContainer.innerHTML = '<div class="message">جاري التحميل...</div>';
-
   const url = folder ? apiUrl + '?folder=' + encodeURIComponent(folder) : apiUrl;
-
   fetch(url)
     .then(res => res.json())
     .then(data => {
@@ -183,14 +174,13 @@ function loadContent(folder = '') {
         folders.forEach(f => {
           const div = document.createElement('div');
           div.className = 'item-card';
-          div.innerHTML = `<div class="label">📁 ${f.name}</div>`;
+          div.textContent = f.name;
           div.onclick = () => loadContent(f.path);
           listContainer.appendChild(div);
         });
       } else {
         allFiles = data.filter(i => i.type === 'file' && /\.(mp3|wav|ogg)$/i.test(i.name));
-        allFiles.sort(naturalSort);
-        updateDisplayedFiles();
+        renderFiles(allFiles);
       }
     })
     .catch(err => {
@@ -199,18 +189,17 @@ function loadContent(folder = '') {
     });
 }
 
-function updateDisplayedFiles() {
-  const query = searchInput.value.toLowerCase();
+function renderFiles(files) {
   listContainer.innerHTML = '';
-  const filtered = allFiles.filter(f => f.name.toLowerCase().includes(query));
-  if (filtered.length === 0) {
+  if (files.length === 0) {
     listContainer.innerHTML = '<div class="message">لا توجد ملفات صوتية.</div>';
     return;
   }
-  filtered.forEach(f => {
+  files.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+  files.forEach(f => {
     const div = document.createElement('div');
     div.className = 'item-card';
-    div.innerHTML = `<div class="label">🎵 ${f.name}</div><button class="play-button">تشغيل</button>`;
+    div.innerHTML = `<div>${f.name}</div><button class="play-button">تشغيل</button>`;
     div.querySelector('button').onclick = () => playAudio(f.url, f.name);
     listContainer.appendChild(div);
   });
@@ -229,7 +218,10 @@ closeBtn.onclick = () => {
 };
 
 backBtn.onclick = () => loadContent('');
-searchInput.oninput = () => updateDisplayedFiles();
+searchInput.oninput = () => {
+  const val = searchInput.value.toLowerCase();
+  renderFiles(allFiles.filter(f => f.name.toLowerCase().includes(val)));
+};
 
 loadContent();
 
