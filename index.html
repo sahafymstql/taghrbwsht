@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>📚 تاغربوشت - مكتبة المحاضرات</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f2f2f2; margin: 0; padding: 20px; color: #333; }
+    .container { max-width: 800px; margin: auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
+    h1 { text-align: center; color: #006699; margin-bottom: 20px; }
+    .back { margin-bottom: 10px; color: #c00; font-weight: bold; display: none; }
+    ul { list-style: none; padding: 0; }
+    li { display: flex; align-items: center; justify-content: space-between;
+         padding: 10px 15px; margin-bottom: 8px; background: #fafafa; border-radius: 6px;
+         transition: background 0.3s; }
+    li:hover { background: #e6f0ff; }
+    .icon { font-size: 1.2em; margin-left: 10px; }
+    .item { flex:1; color: #0066cc; text-decoration: none; font-weight: 600; }
+    audio { margin-left: 20px; outline: none; width: 200px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📚 مكتبة تاغربوشت</h1>
+    <div class="back"><a href="#" onclick="goBack()">⬅ الرجوع</a></div>
+    <ul id="fileList"></ul>
+  </div>
+
+<script>
+const apiUrl = 'https://nujume.com/list_audio.php';
+let currentFolder = '';
+
+function loadFolder(folder = '') {
+  const url = folder ? `${apiUrl}?folder=${encodeURIComponent(folder)}` : apiUrl;
+  fetch(url)
+    .then(res => res.json())
+    .then(json => renderList(json))
+    .catch(e => alert('فشل بجلب البيانات: '+e));
+}
+
+function renderList(json) {
+  currentFolder = json.folder || '';
+  document.querySelector('.back').style.display = !currentFolder ? 'none':'block';
+  const ul = document.getElementById('fileList');
+  ul.innerHTML = '';
+  if (json.type === 'folders') {
+    json.folders.forEach(f => {
+      const li = document.createElement('li');
+      li.innerHTML = `<span>📁</span>
+        <a class="item" href="#" onclick="loadFolder('${f}')">${f}</a>`;
+      ul.appendChild(li);
+    });
+  }
+  if (json.type === 'files') {
+    json.files.forEach(f => {
+      const url = `https://nujume.com/wp-content/uploads/بالعلم نرتقي/${currentFolder}/${f}`;
+      const li = document.createElement('li');
+      li.innerHTML = `<span>🎵</span>
+        <a class="item" href="${url}" target="_blank">${f}</a>
+        <audio controls preload="none"><source src="${url}"></audio>`;
+      ul.appendChild(li);
+    });
+  }
+}
+
+function goBack() {
+  const parent = currentFolder.split('/').slice(0,-1).join('/');
+  loadFolder(parent);
+}
+
+loadFolder();
+</script>
+</body>
+</html>
