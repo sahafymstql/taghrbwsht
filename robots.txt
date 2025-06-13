@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://taghrbwsht.vercel.app/sitemap.xml
