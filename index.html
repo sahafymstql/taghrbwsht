@@ -1,322 +1,136 @@
+<?php
+// السماح بعرض الأخطاء للتصحيح (يمكنك حذف هذا لاحقًا)
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// المجلد الذي يحتوي على ملفات الصوت
+$directory = "/home/nujusqfr/qaryat.xyz/wp-content/uploads/بالعلم نرتقي";
+
+// التأكد أن المجلد موجود
+if (!is_dir($directory)) {
+    die("المجلد غير موجود: $directory");
+}
+
+// جلب الملفات
+$files = glob($directory . "/*.mp3");
+?>
+
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>قائمة الأصوات</title>
 
-  <!-- خط تجميلي -->
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700&display=swap" rel="stylesheet">
-
-  <!-- أيقونات FontAwesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-  <!-- أيقونة الموقع -->
-  <link rel="icon" href="https://qaryat.xyz/wp-content/uploads/file_00000000525c61f8afbbc7b590d1c6ef_1749847919915.jpeg" type="image/jpeg">
-
-  <title>🎧 مكتبة تاغربوشت الصوتية</title>
-
-  <!-- وصف لمحركات البحث -->
-  <meta name="description" content="استمع إلى محاضرات وأصوات تعليمية باللغة العربية من مكتبة تاغربوشت الصوتية.">
-
-  <!-- معاينة عند مشاركة الرابط -->
-  <meta property="og:title" content="🎧 مكتبة تاغربوشت الصوتية">
-  <meta property="og:description" content="منصة صوتية تحتوي على محاضرات وتسجيلات تعليمية، مصممة للاستماع بسهولة وبساطة.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://taghrbwsht.vercel.app/">
-  <meta property="og:image" content="https://i.ibb.co/Pssc6Vm/logo.jpg">
-
-  <!-- دعم تويتر -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="🎧 مكتبة تاغربوشت الصوتية">
-  <meta name="twitter:description" content="منصة صوتية تحتوي على محاضرات وتسجيلات تعليمية.">
-  <meta name="twitter:image" content="https://i.ibb.co/Pssc6Vm/logo.jpg">
-
-  <style>
+<style>
     body {
-      font-family: 'Tajawal', sans-serif;
-      background: #f5f7ff;
-      color: #222;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
+        font-family: "Tajawal", sans-serif;
+        background: #f5f6fa;
+        margin: 0;
+        padding: 20px;
+        direction: rtl;
+        text-align: right;
     }
 
-    header {
-      text-align: center;
-      padding: 20px 12px;
-      background: #2563eb;
-      color: #fff;
-      font-size: 1.6rem;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    h2 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 25px;
     }
 
-    #backBtn {
-      margin: 12px;
-      display: none;
-      background: #2563eb;
-      color: #fff;
-      padding: 11px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      width: calc(100% - 24px);
-      font-size: 1rem;
-      font-weight: 500;
-      transition: background 0.3s;
+    .audio-card {
+        background: #ffffff;
+        padding: 15px;
+        border-radius: 14px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 7px rgba(0,0,0,0.10);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: transform .2s;
     }
 
-    #backBtn:hover {
-      background: #1e40af;
+    .audio-card:hover {
+        transform: scale(1.02);
     }
 
-    #searchInput {
-      display: none;
-      margin: 0 12px 15px;
-      padding: 12px;
-      font-size: 1rem;
-      width: calc(100% - 24px);
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      transition: 0.2s;
+    .audio-title {
+        font-size: 17px;
+        font-weight: 600;
+        color: #2c3e50;
     }
 
-    #searchInput:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 5px rgba(37, 99, 235, 0.2);
+    .play-btn {
+        background: #0984e3;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: background .2s;
+        font-size: 15px;
     }
 
-    main {
-      flex: 1;
-      padding: 12px;
+    .play-btn:hover {
+        background: #74b9ff;
     }
-
-    #listContainer {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    /* البطاقات */
-    .item-card {
-      background: #fff;
-      border-radius: 14px;
-      padding: 14px 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.06);
-      transition: 0.25s;
-      animation: fadeIn 0.4s ease;
-    }
-
-    .item-card:hover {
-      background: #eef3ff;
-      transform: translateY(-2px);
-    }
-
-    /* أنيميشن دخول خفيف */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .play-button {
-      background: #2563eb;
-      color: #fff;
-      padding: 7px 10px;
-      border: none;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .play-button:hover {
-      background: #1e40af;
-    }
-
-    /* الرسائل */
-    .message {
-      text-align: center;
-      padding: 40px 0;
-      color: #555;
-      font-size: 1.1rem;
-      font-weight: 500;
-    }
-
-    /* مشغّل الصوت */
-    #audioPlayerContainer {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #1d4ed8;
-      display: flex;
-      flex-direction: column;
-      padding: 12px;
-      transition: transform 0.4s ease;
-      transform: translateY(100%);
-      box-shadow: 0 -3px 10px rgba(0,0,0,0.2);
-      z-index: 999;
-      border-radius: 15px 15px 0 0;
-    }
-
-    #audioPlayerContainer.active {
-      transform: translateY(0%);
-    }
-
-    .audio-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: #fff;
-      font-size: 1rem;
-      margin-bottom: 8px;
-      font-weight: 600;
-    }
-
-    .audio-header button {
-      background: transparent;
-      border: none;
-      color: #fff;
-      font-size: 1.5rem;
-      cursor: pointer;
-    }
-
-    audio {
-      width: 100%;
-      border-radius: 8px;
-      margin-top: 4px;
-    }
-  </style>
+</style>
 </head>
 <body>
 
-  <header>🎧 مكتبة تاغربوشت الصوتية</header>
+<h2>📁 قائمة ملفات الصوت</h2>
 
-  <button id="backBtn"><i class="fa-solid fa-arrow-right"></i> العودة إلى الأقسام</button>
+<?php foreach ($files as $index => $file):
+    $filename = basename($file);
+?>
+<div class="audio-card">
+    <div class="audio-title"><?= htmlspecialchars($filename) ?></div>
 
-  <input id="searchInput" type="text" placeholder="🔍 ابحث عن مقطع صوتي...">
+    <button class="play-btn" onclick="togglePlay(<?= $index ?>)" id="btn-<?= $index ?>">▶ تشغيل</button>
 
-  <main>
-    <div id="listContainer"><div class="message">جاري تحميل الأقسام...</div></div>
-  </main>
+    <audio id="audio-<?= $index ?>">
+        <source src="/wp-content/uploads/بالعلم نرتقي/<?= $filename ?>" type="audio/mpeg">
+    </audio>
+</div>
+<?php endforeach; ?>
 
-  <div id="audioPlayerContainer" aria-live="polite">
-    <div class="audio-header">
-      <div id="audioFileName"></div>
-      <button id="closePlayerBtn">&times;</button>
-    </div>
-    <audio controls></audio>
-  </div>
+<script>
+    let currentPlaying = null;
 
-  <script>
-    const apiUrl = 'https://qaryat.xyz/list_audio.php';
-    const listContainer = document.getElementById('listContainer');
-    const backBtn = document.getElementById('backBtn');
-    const searchInput = document.getElementById('searchInput');
-    const audioContainer = document.getElementById('audioPlayerContainer');
-    const audioElem = audioContainer.querySelector('audio');
-    const audioNameElem = document.getElementById('audioFileName');
-    const closeBtn = document.getElementById('closePlayerBtn');
+    function togglePlay(i) {
+        let audio = document.getElementById("audio-" + i);
+        let btn = document.getElementById("btn-" + i);
 
-    let currentFolder = '';
-    let audioFiles = [];
-
-    function naturalSort(arr) {
-      return arr.slice().sort((a, b) => {
-        return a.name.localeCompare(b.name, 'ar', { numeric: true, sensitivity: 'base' });
-      });
-    }
-
-    function loadContent(folder = '') {
-      currentFolder = folder;
-      backBtn.style.display = folder ? 'block' : 'none';
-      searchInput.style.display = folder ? 'block' : 'none';
-      searchInput.value = '';
-      listContainer.innerHTML = '<div class="message">جاري التحميل...</div>';
-
-      const url = folder ? `${apiUrl}?folder=${encodeURIComponent(folder)}` : apiUrl;
-
-      fetch(url)
-        .then(res => res.json())
-        .then(data => {
-          listContainer.innerHTML = '';
-          if (!Array.isArray(data) || data.length === 0) {
-            listContainer.innerHTML = '<div class="message">لا توجد عناصر.</div>';
+        // إذا كان نفس الصوت يُشغّل → وقّفه
+        if (currentPlaying === i) {
+            audio.pause();
+            audio.currentTime = 0;
+            btn.textContent = "▶ تشغيل";
+            currentPlaying = null;
             return;
-          }
+        }
 
-          if (!folder) {
-            const folders = data.filter(i => i.type === 'folder');
-            folders.forEach(f => {
-              const div = document.createElement('div');
-              div.className = 'item-card';
-              div.innerHTML = `<i class="fa-solid fa-folder fa-lg"></i> &nbsp; ${f.name}`;
-              div.onclick = () => loadContent(f.path);
-              listContainer.appendChild(div);
-            });
-          } else {
-            audioFiles = naturalSort(data.filter(i => i.type === 'file' && /\.(mp3|wav|ogg)$/i.test(i.name)));
-            renderAudioList(audioFiles);
-          }
-        })
-        .catch(err => {
-          console.error(err);
-          listContainer.innerHTML = '<div class="message">حدث خطأ.</div>';
-        });
-    }
+        // إيقاف أي صوت آخر شغّال
+        if (currentPlaying !== null) {
+            let oldAudio = document.getElementById("audio-" + currentPlaying);
+            let oldBtn = document.getElementById("btn-" + currentPlaying);
 
-    function renderAudioList(files) {
-      listContainer.innerHTML = '';
-      if (files.length === 0) {
-        listContainer.innerHTML = '<div class="message">لا توجد ملفات صوتية.</div>';
-        return;
-      }
+            oldAudio.pause();
+            oldAudio.currentTime = 0;
+            oldBtn.textContent = "▶ تشغيل";
+        }
 
-      files.forEach(f => {
-        const div = document.createElement('div');
-        div.className = 'item-card';
-        div.innerHTML = `
-          <span><i class="fa-solid fa-music"></i> &nbsp; ${f.name}</span>
-          <button class="play-button"><i class="fa-solid fa-play"></i></button>
-        `;
-        div.querySelector('.play-button').onclick = (e) => {
-          e.stopPropagation();
-          playAudio(f.url, f.name);
+        // تشغيل الصوت الحالي
+        audio.play();
+        btn.textContent = "⏸ إيقاف";
+        currentPlaying = i;
+
+        // عند انتهاء الصوت يرجع زر التشغيل تلقائياً
+        audio.onended = function () {
+            btn.textContent = "▶ تشغيل";
+            currentPlaying = null;
         };
-        listContainer.appendChild(div);
-      });
     }
-
-    function playAudio(url, name) {
-      audioElem.src = url;
-      audioElem.play();
-      audioNameElem.textContent = name;
-      audioContainer.classList.add('active');
-    }
-
-    closeBtn.onclick = () => {
-      audioContainer.classList.remove('active');
-      audioElem.pause();
-    };
-
-    backBtn.onclick = () => loadContent('');
-
-    searchInput.oninput = () => {
-      const query = searchInput.value.trim();
-      const filtered = audioFiles.filter(file => file.name.includes(query));
-      renderAudioList(filtered);
-    };
-
-    loadContent();
-  </script>
+</script>
 
 </body>
 </html>
