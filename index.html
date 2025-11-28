@@ -1,20 +1,3 @@
-<?php
-// السماح بعرض الأخطاء للتصحيح (اختياري)
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-// المسار الصحيح لملفات الصوت داخل الاستضافة المشتركة
-$directory = "/home/nujusqfr/qaryat.xyz/wp-content/uploads/بالعلم نرتقي";
-
-// التحقق من أن المجلد موجود
-if (!is_dir($directory)) {
-    die("❌ المجلد غير موجود: $directory");
-}
-
-// جلب جميع ملفات mp3
-$files = glob($directory . "/*.mp3");
-?>
-
 <!DOCTYPE html>
 <html lang="ar">
 <head>
