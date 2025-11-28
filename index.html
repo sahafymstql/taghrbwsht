@@ -1,17 +1,17 @@
 <?php
-// السماح بعرض الأخطاء للتصحيح (يمكنك حذف هذا لاحقًا)
+// السماح بعرض الأخطاء للتصحيح (اختياري)
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// المجلد الذي يحتوي على ملفات الصوت
+// المسار الصحيح لملفات الصوت داخل الاستضافة المشتركة
 $directory = "/home/nujusqfr/qaryat.xyz/wp-content/uploads/بالعلم نرتقي";
 
-// التأكد أن المجلد موجود
+// التحقق من أن المجلد موجود
 if (!is_dir($directory)) {
-    die("المجلد غير موجود: $directory");
+    die("❌ المجلد غير موجود: $directory");
 }
 
-// جلب الملفات
+// جلب جميع ملفات mp3
 $files = glob($directory . "/*.mp3");
 ?>
 
@@ -19,21 +19,20 @@ $files = glob($directory . "/*.mp3");
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>قائمة الأصوات</title>
+<title>قائمة الملفات الصوتية</title>
 
 <style>
     body {
         font-family: "Tajawal", sans-serif;
-        background: #f5f6fa;
+        background: #f4f6f9;
         margin: 0;
         padding: 20px;
         direction: rtl;
-        text-align: right;
     }
 
     h2 {
         text-align: center;
-        color: #333;
+        color: #2d3436;
         margin-bottom: 25px;
     }
 
@@ -42,7 +41,7 @@ $files = glob($directory . "/*.mp3");
         padding: 15px;
         border-radius: 14px;
         margin-bottom: 15px;
-        box-shadow: 0 2px 7px rgba(0,0,0,0.10);
+        box-shadow: 0 3px 8px rgba(0,0,0,0.10);
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -57,12 +56,14 @@ $files = glob($directory . "/*.mp3");
         font-size: 17px;
         font-weight: 600;
         color: #2c3e50;
+        max-width: 70%;
+        word-wrap: break-word;
     }
 
     .play-btn {
         background: #0984e3;
         color: white;
-        padding: 10px 20px;
+        padding: 10px 22px;
         border-radius: 10px;
         border: none;
         cursor: pointer;
@@ -77,18 +78,20 @@ $files = glob($directory . "/*.mp3");
 </head>
 <body>
 
-<h2>📁 قائمة ملفات الصوت</h2>
+<h2>📁 قائمة الملفات الصوتية</h2>
 
-<?php foreach ($files as $index => $file):
+<?php foreach ($files as $index => $file): 
     $filename = basename($file);
 ?>
 <div class="audio-card">
     <div class="audio-title"><?= htmlspecialchars($filename) ?></div>
 
-    <button class="play-btn" onclick="togglePlay(<?= $index ?>)" id="btn-<?= $index ?>">▶ تشغيل</button>
+    <button class="play-btn" onclick="togglePlay(<?= $index ?>)" id="btn-<?= $index ?>">
+        ▶ تشغيل
+    </button>
 
     <audio id="audio-<?= $index ?>">
-        <source src="/wp-content/uploads/بالعلم نرتقي/<?= $filename ?>" type="audio/mpeg">
+        <source src="/wp-content/uploads/بالعلم نرتقي/<?= urlencode($filename) ?>" type="audio/mpeg">
     </audio>
 </div>
 <?php endforeach; ?>
@@ -100,7 +103,7 @@ $files = glob($directory . "/*.mp3");
         let audio = document.getElementById("audio-" + i);
         let btn = document.getElementById("btn-" + i);
 
-        // إذا كان نفس الصوت يُشغّل → وقّفه
+        // إذا كان الصوت الحالي يعمل ثم ضغط عليه → قف
         if (currentPlaying === i) {
             audio.pause();
             audio.currentTime = 0;
@@ -109,7 +112,7 @@ $files = glob($directory . "/*.mp3");
             return;
         }
 
-        // إيقاف أي صوت آخر شغّال
+        // إذا كان هناك صوت آخر شغّال → وقفه
         if (currentPlaying !== null) {
             let oldAudio = document.getElementById("audio-" + currentPlaying);
             let oldBtn = document.getElementById("btn-" + currentPlaying);
@@ -119,12 +122,12 @@ $files = glob($directory . "/*.mp3");
             oldBtn.textContent = "▶ تشغيل";
         }
 
-        // تشغيل الصوت الحالي
+        // تشغيل الصوت الجديد
         audio.play();
         btn.textContent = "⏸ إيقاف";
         currentPlaying = i;
 
-        // عند انتهاء الصوت يرجع زر التشغيل تلقائياً
+        // عند انتهاء الصوت → رجوع الزر لوضع تشغيل
         audio.onended = function () {
             btn.textContent = "▶ تشغيل";
             currentPlaying = null;
