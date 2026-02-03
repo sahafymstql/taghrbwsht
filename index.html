@@ -1,322 +1,320 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- خط تجميلي -->
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-  <!-- أيقونات FontAwesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<title>🎧 مكتبة تاغربوشت الصوتية</title>
 
-  <!-- أيقونة الموقع -->
-  <link rel="icon" href="https://qaryat.xyz/wp-content/uploads/file_00000000525c61f8afbbc7b590d1c6ef_1749847919915.jpeg" type="image/jpeg">
+<style>
+body{
+  font-family:'Tajawal',sans-serif;
+  background:#f5f7ff;
+  margin:0;
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
+}
 
-  <title>🎧 مكتبة تاغربوشت الصوتية</title>
+header{
+  text-align:center;
+  padding:20px;
+  background:#2563eb;
+  color:#fff;
+  font-size:1.6rem;
+  font-weight:700;
+}
 
-  <!-- وصف لمحركات البحث -->
-  <meta name="description" content="استمع إلى محاضرات وأصوات تعليمية باللغة العربية من مكتبة تاغربوشت الصوتية.">
+main{
+  flex:1;
+  padding:12px;
+  padding-bottom:120px; /* حتى لا يغطي المشغل العناصر */
+}
 
-  <!-- معاينة عند مشاركة الرابط -->
-  <meta property="og:title" content="🎧 مكتبة تاغربوشت الصوتية">
-  <meta property="og:description" content="منصة صوتية تحتوي على محاضرات وتسجيلات تعليمية، مصممة للاستماع بسهولة وبساطة.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://taghrbwsht.vercel.app/">
-  <meta property="og:image" content="https://i.ibb.co/Pssc6Vm/logo.jpg">
+#backBtn,#searchInput{
+  margin:12px;
+  width:calc(100% - 24px);
+}
 
-  <!-- دعم تويتر -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="🎧 مكتبة تاغربوشت الصوتية">
-  <meta name="twitter:description" content="منصة صوتية تحتوي على محاضرات وتسجيلات تعليمية.">
-  <meta name="twitter:image" content="https://i.ibb.co/Pssc6Vm/logo.jpg">
+#searchInput{
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  display:none;
+}
 
-  <style>
-    body {
-      font-family: 'Tajawal', sans-serif;
-      background: #f5f7ff;
-      color: #222;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
+#listContainer{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
 
-    header {
-      text-align: center;
-      padding: 20px 12px;
-      background: #2563eb;
-      color: #fff;
-      font-size: 1.6rem;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
+/* ===== البطاقات ===== */
+.item-card{
+  background:#fff;
+  border-radius:14px;
+  padding:14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border:1px solid #e5e7eb;
+  cursor:pointer;
+  transition:.2s;
+}
 
-    #backBtn {
-      margin: 12px;
-      display: none;
-      background: #2563eb;
-      color: #fff;
-      padding: 11px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      width: calc(100% - 24px);
-      font-size: 1rem;
-      font-weight: 500;
-      transition: background 0.3s;
-    }
+.item-card:hover{
+  background:#eef3ff;
+}
 
-    #backBtn:hover {
-      background: #1e40af;
-    }
+.item-card:active{
+  transform:scale(.98); /* إحساس زر حقيقي */
+}
 
-    #searchInput {
-      display: none;
-      margin: 0 12px 15px;
-      padding: 12px;
-      font-size: 1rem;
-      width: calc(100% - 24px);
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      transition: 0.2s;
-    }
+/* الملف المشغّل */
+.item-card.active{
+  background:#dbeafe;
+  border-color:#2563eb;
+}
 
-    #searchInput:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 5px rgba(37, 99, 235, 0.2);
-    }
+.play-button{
+  min-width:42px;
+  min-height:42px;
+  border:none;
+  border-radius:8px;
+  background:#2563eb;
+  color:#fff;
+  cursor:pointer;
+}
 
-    main {
-      flex: 1;
-      padding: 12px;
-    }
+/* الرسائل */
+.message{
+  text-align:center;
+  padding:40px;
+  color:#555;
+}
 
-    #listContainer {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
+/* ===== مشغل الصوت ===== */
+#audioPlayerContainer{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:#1d4ed8;
+  padding:12px;
+  transform:translateY(100%);
+  transition:.35s;
+  color:#fff;
+}
 
-    /* البطاقات */
-    .item-card {
-      background: #fff;
-      border-radius: 14px;
-      padding: 14px 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.06);
-      transition: 0.25s;
-      animation: fadeIn 0.4s ease;
-    }
+#audioPlayerContainer.active{
+  transform:translateY(0);
+}
 
-    .item-card:hover {
-      background: #eef3ff;
-      transform: translateY(-2px);
-    }
+.audio-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:6px;
+}
 
-    /* أنيميشن دخول خفيف */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .play-button {
-      background: #2563eb;
-      color: #fff;
-      padding: 7px 10px;
-      border: none;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .play-button:hover {
-      background: #1e40af;
-    }
-
-    /* الرسائل */
-    .message {
-      text-align: center;
-      padding: 40px 0;
-      color: #555;
-      font-size: 1.1rem;
-      font-weight: 500;
-    }
-
-    /* مشغّل الصوت */
-    #audioPlayerContainer {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #1d4ed8;
-      display: flex;
-      flex-direction: column;
-      padding: 12px;
-      transition: transform 0.4s ease;
-      transform: translateY(100%);
-      box-shadow: 0 -3px 10px rgba(0,0,0,0.2);
-      z-index: 999;
-      border-radius: 15px 15px 0 0;
-    }
-
-    #audioPlayerContainer.active {
-      transform: translateY(0%);
-    }
-
-    .audio-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      color: #fff;
-      font-size: 1rem;
-      margin-bottom: 8px;
-      font-weight: 600;
-    }
-
-    .audio-header button {
-      background: transparent;
-      border: none;
-      color: #fff;
-      font-size: 1.5rem;
-      cursor: pointer;
-    }
-
-    audio {
-      width: 100%;
-      border-radius: 8px;
-      margin-top: 4px;
-    }
-  </style>
+audio{
+  width:100%;
+}
+</style>
 </head>
+
 <body>
 
-  <header>🎧 مكتبة تاغربوشت الصوتية</header>
+<header>🎧 مكتبة تاغربوشت الصوتية</header>
 
-  <button id="backBtn"><i class="fa-solid fa-arrow-right"></i> العودة إلى الأقسام</button>
+<button id="backBtn" style="display:none">العودة</button>
+<input id="searchInput" placeholder="🔍 ابحث...">
 
-  <input id="searchInput" type="text" placeholder="🔍 ابحث عن مقطع صوتي...">
+<main>
+  <div id="listContainer" class="message">جاري التحميل...</div>
+</main>
 
-  <main>
-    <div id="listContainer"><div class="message">جاري تحميل الأقسام...</div></div>
-  </main>
-
-  <div id="audioPlayerContainer" aria-live="polite">
-    <div class="audio-header">
-      <div id="audioFileName"></div>
-      <button id="closePlayerBtn">&times;</button>
-    </div>
-    <audio controls></audio>
+<div id="audioPlayerContainer">
+  <div class="audio-header">
+    <span id="audioFileName"></span>
+    <button id="closePlayerBtn">✕</button>
   </div>
 
-  <script>
-    const apiUrl = 'https://qaryat.xyz/list_audio.php';
-    const listContainer = document.getElementById('listContainer');
-    const backBtn = document.getElementById('backBtn');
-    const searchInput = document.getElementById('searchInput');
-    const audioContainer = document.getElementById('audioPlayerContainer');
-    const audioElem = audioContainer.querySelector('audio');
-    const audioNameElem = document.getElementById('audioFileName');
-    const closeBtn = document.getElementById('closePlayerBtn');
+  <audio controls></audio>
+</div>
 
-    let currentFolder = '';
-    let audioFiles = [];
+<script>
+const apiUrl='https://qaryat.xyz/list_audio.php';
 
-    function naturalSort(arr) {
-      return arr.slice().sort((a, b) => {
-        return a.name.localeCompare(b.name, 'ar', { numeric: true, sensitivity: 'base' });
-      });
+const listContainer=document.getElementById('listContainer');
+const backBtn=document.getElementById('backBtn');
+const searchInput=document.getElementById('searchInput');
+const audioContainer=document.getElementById('audioPlayerContainer');
+const audioElem=audioContainer.querySelector('audio');
+const audioNameElem=document.getElementById('audioFileName');
+const closeBtn=document.getElementById('closePlayerBtn');
+
+let currentFolder='';
+let audioFiles=[];
+let currentIndex=-1;
+
+
+/* ========= أدوات صغيرة ========= */
+
+function normalize(s){
+  return s.toLowerCase().replace(/[أإآ]/g,'ا');
+}
+
+function setActive(card){
+  document.querySelectorAll('.item-card')
+    .forEach(c=>c.classList.remove('active'));
+  if(card) card.classList.add('active');
+}
+
+function saveScroll(){
+  sessionStorage.setItem('scroll',window.scrollY);
+}
+
+function restoreScroll(){
+  window.scrollTo(0,sessionStorage.getItem('scroll')||0);
+}
+
+
+/* ========= تحميل المحتوى ========= */
+
+function loadContent(folder=''){
+  currentFolder=folder;
+
+  backBtn.style.display=folder?'block':'none';
+  searchInput.style.display=folder?'block':'none';
+
+  listContainer.innerHTML='<div class="message">جاري التحميل...</div>';
+
+  fetch(folder?`${apiUrl}?folder=${encodeURIComponent(folder)}`:apiUrl)
+  .then(r=>r.json())
+  .then(data=>{
+    listContainer.innerHTML='';
+
+    if(!data.length){
+      listContainer.innerHTML='<div class="message">لا توجد ملفات في هذا القسم 📂</div>';
+      return;
     }
 
-    function loadContent(folder = '') {
-      currentFolder = folder;
-      backBtn.style.display = folder ? 'block' : 'none';
-      searchInput.style.display = folder ? 'block' : 'none';
-      searchInput.value = '';
-      listContainer.innerHTML = '<div class="message">جاري التحميل...</div>';
+    if(!folder){
+      data.filter(i=>i.type==='folder').forEach(f=>{
+        const div=document.createElement('div');
+        div.className='item-card';
+        div.textContent='📁 '+f.name;
 
-      const url = folder ? `${apiUrl}?folder=${encodeURIComponent(folder)}` : apiUrl;
-
-      fetch(url)
-        .then(res => res.json())
-        .then(data => {
-          listContainer.innerHTML = '';
-          if (!Array.isArray(data) || data.length === 0) {
-            listContainer.innerHTML = '<div class="message">لا توجد عناصر.</div>';
-            return;
-          }
-
-          if (!folder) {
-            const folders = data.filter(i => i.type === 'folder');
-            folders.forEach(f => {
-              const div = document.createElement('div');
-              div.className = 'item-card';
-              div.innerHTML = `<i class="fa-solid fa-folder fa-lg"></i> &nbsp; ${f.name}`;
-              div.onclick = () => loadContent(f.path);
-              listContainer.appendChild(div);
-            });
-          } else {
-            audioFiles = naturalSort(data.filter(i => i.type === 'file' && /\.(mp3|wav|ogg)$/i.test(i.name)));
-            renderAudioList(audioFiles);
-          }
-        })
-        .catch(err => {
-          console.error(err);
-          listContainer.innerHTML = '<div class="message">حدث خطأ.</div>';
-        });
-    }
-
-    function renderAudioList(files) {
-      listContainer.innerHTML = '';
-      if (files.length === 0) {
-        listContainer.innerHTML = '<div class="message">لا توجد ملفات صوتية.</div>';
-        return;
-      }
-
-      files.forEach(f => {
-        const div = document.createElement('div');
-        div.className = 'item-card';
-        div.innerHTML = `
-          <span><i class="fa-solid fa-music"></i> &nbsp; ${f.name}</span>
-          <button class="play-button"><i class="fa-solid fa-play"></i></button>
-        `;
-        div.querySelector('.play-button').onclick = (e) => {
-          e.stopPropagation();
-          playAudio(f.url, f.name);
-        };
+        div.onclick=()=>loadContent(f.path);
         listContainer.appendChild(div);
       });
     }
-
-    function playAudio(url, name) {
-      audioElem.src = url;
-      audioElem.play();
-      audioNameElem.textContent = name;
-      audioContainer.classList.add('active');
+    else{
+      audioFiles=data.filter(i=>/\.(mp3|wav|ogg)$/i.test(i.name));
+      renderAudioList(audioFiles);
     }
 
-    closeBtn.onclick = () => {
-      audioContainer.classList.remove('active');
-      audioElem.pause();
+    restoreScroll();
+  });
+}
+
+
+/* ========= عرض القائمة ========= */
+
+function renderAudioList(files){
+  listContainer.innerHTML='';
+
+  files.forEach((f,index)=>{
+    const div=document.createElement('div');
+    div.className='item-card';
+
+    const nameSpan=document.createElement('span');
+    nameSpan.textContent='🎵 '+f.name;
+
+    const btn=document.createElement('button');
+    btn.className='play-button';
+    btn.textContent='▶';
+
+    btn.onclick=(e)=>{
+      e.stopPropagation();
+      saveScroll();
+      playAudio(f,index,div,btn);
     };
 
-    backBtn.onclick = () => loadContent('');
+    div.append(nameSpan,btn);
+    listContainer.appendChild(div);
+  });
+}
 
-    searchInput.oninput = () => {
-      const query = searchInput.value.trim();
-      const filtered = audioFiles.filter(file => file.name.includes(query));
-      renderAudioList(filtered);
-    };
 
-    loadContent();
-  </script>
+/* ========= تشغيل الصوت ========= */
+
+function playAudio(file,index,card,btn){
+
+  document.querySelectorAll('.play-button').forEach(b=>b.textContent='▶');
+
+  btn.textContent='⏳';
+
+  audioElem.pause();
+  audioElem.currentTime=0;
+  audioElem.src=file.url;
+
+  audioElem.play().catch(()=>{});
+
+  currentIndex=index;
+
+  setActive(card);
+  btn.textContent='⏸';
+
+  audioNameElem.textContent=file.name;
+  audioContainer.classList.add('active');
+}
+
+
+/* مدة الملف */
+audioElem.onloadedmetadata=()=>{
+  const d=Math.floor(audioElem.duration);
+  const m=Math.floor(d/60);
+  const s=(d%60).toString().padStart(2,'0');
+  audioNameElem.textContent+=` (${m}:${s})`;
+};
+
+
+/* تشغيل التالي تلقائياً */
+audioElem.onended=()=>{
+  if(audioFiles[currentIndex+1]){
+    const next=audioFiles[currentIndex+1];
+    const cards=document.querySelectorAll('.item-card');
+    playAudio(next,currentIndex+1,cards[currentIndex+1],
+      cards[currentIndex+1].querySelector('button'));
+  }
+};
+
+
+/* إغلاق */
+closeBtn.onclick=()=>{
+  audioElem.pause();
+  audioElem.src='';
+  audioContainer.classList.remove('active');
+};
+
+
+/* بحث ذكي */
+searchInput.oninput=()=>{
+  const q=normalize(searchInput.value);
+  const filtered=audioFiles.filter(f=>normalize(f.name).includes(q));
+  renderAudioList(filtered);
+};
+
+
+backBtn.onclick=()=>loadContent('');
+
+loadContent();
+</script>
 
 </body>
 </html>
