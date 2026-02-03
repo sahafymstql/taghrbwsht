@@ -7,12 +7,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
+<link rel="icon" href="https://qaryat.xyz/wp-content/uploads/file_00000000525c61f8afbbc7b590d1c6ef_1749847919915.jpeg">
+
 <title>🎧 مكتبة تاغربوشت الصوتية</title>
 
 <style>
 body{
   font-family:'Tajawal',sans-serif;
   background:#f5f7ff;
+  color:#222;
   margin:0;
   display:flex;
   flex-direction:column;
@@ -21,7 +24,7 @@ body{
 
 header{
   text-align:center;
-  padding:20px;
+  padding:20px 12px;
   background:#2563eb;
   color:#fff;
   font-size:1.6rem;
@@ -31,19 +34,28 @@ header{
 main{
   flex:1;
   padding:12px;
-  padding-bottom:120px; /* حتى لا يغطي المشغل العناصر */
+  padding-bottom:110px;
 }
 
-#backBtn,#searchInput{
+#backBtn{
   margin:12px;
+  display:none;
+  background:#2563eb;
+  color:#fff;
+  padding:11px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
   width:calc(100% - 24px);
 }
 
 #searchInput{
-  padding:12px;
-  border-radius:10px;
-  border:1px solid #ccc;
   display:none;
+  margin:0 12px 15px;
+  padding:12px;
+  width:calc(100% - 24px);
+  border:1px solid #ccc;
+  border-radius:10px;
 }
 
 #listContainer{
@@ -52,16 +64,17 @@ main{
   gap:12px;
 }
 
-/* ===== البطاقات ===== */
+/* البطاقات */
 .item-card{
   background:#fff;
   border-radius:14px;
-  padding:14px;
+  padding:14px 12px;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  border:1px solid #e5e7eb;
   cursor:pointer;
+  border:1px solid #e5e7eb;
+  box-shadow:0 3px 10px rgba(0,0,0,.06);
   transition:.2s;
 }
 
@@ -69,34 +82,28 @@ main{
   background:#eef3ff;
 }
 
-.item-card:active{
-  transform:scale(.98); /* إحساس زر حقيقي */
-}
-
-/* الملف المشغّل */
+/* تمييز خفيف فقط للملف النشط */
 .item-card.active{
-  background:#dbeafe;
+  background:#eef3ff;
   border-color:#2563eb;
 }
 
 .play-button{
-  min-width:42px;
-  min-height:42px;
-  border:none;
-  border-radius:8px;
   background:#2563eb;
   color:#fff;
+  padding:10px;
+  border:none;
+  border-radius:8px;
   cursor:pointer;
 }
 
-/* الرسائل */
 .message{
   text-align:center;
   padding:40px;
   color:#555;
 }
 
-/* ===== مشغل الصوت ===== */
+/* مشغل الصوت */
 #audioPlayerContainer{
   position:fixed;
   bottom:0;
@@ -107,6 +114,7 @@ main{
   transform:translateY(100%);
   transition:.35s;
   color:#fff;
+  border-radius:15px 15px 0 0;
 }
 
 #audioPlayerContainer.active{
@@ -130,8 +138,8 @@ audio{
 
 <header>🎧 مكتبة تاغربوشت الصوتية</header>
 
-<button id="backBtn" style="display:none">العودة</button>
-<input id="searchInput" placeholder="🔍 ابحث...">
+<button id="backBtn">العودة إلى الأقسام</button>
+<input id="searchInput" placeholder="🔍 ابحث عن مقطع صوتي...">
 
 <main>
   <div id="listContainer" class="message">جاري التحميل...</div>
@@ -139,12 +147,12 @@ audio{
 
 <div id="audioPlayerContainer">
   <div class="audio-header">
-    <span id="audioFileName"></span>
-    <button id="closePlayerBtn">✕</button>
+    <div id="audioFileName"></div>
+    <button id="closePlayerBtn">&times;</button>
   </div>
-
   <audio controls></audio>
 </div>
+
 
 <script>
 const apiUrl='https://qaryat.xyz/list_audio.php';
@@ -162,136 +170,126 @@ let audioFiles=[];
 let currentIndex=-1;
 
 
-/* ========= أدوات صغيرة ========= */
+/* ===== أدوات صغيرة ===== */
 
 function normalize(s){
   return s.toLowerCase().replace(/[أإآ]/g,'ا');
 }
 
-function setActive(card){
+function setActive(index){
   document.querySelectorAll('.item-card')
-    .forEach(c=>c.classList.remove('active'));
-  if(card) card.classList.add('active');
-}
-
-function saveScroll(){
-  sessionStorage.setItem('scroll',window.scrollY);
-}
-
-function restoreScroll(){
-  window.scrollTo(0,sessionStorage.getItem('scroll')||0);
+    .forEach((c,i)=>c.classList.toggle('active', i===index));
 }
 
 
-/* ========= تحميل المحتوى ========= */
+/* ===== تحميل ===== */
 
 function loadContent(folder=''){
+
   currentFolder=folder;
 
   backBtn.style.display=folder?'block':'none';
   searchInput.style.display=folder?'block':'none';
+  searchInput.value='';
 
   listContainer.innerHTML='<div class="message">جاري التحميل...</div>';
 
-  fetch(folder?`${apiUrl}?folder=${encodeURIComponent(folder)}`:apiUrl)
+  const url=folder?`${apiUrl}?folder=${encodeURIComponent(folder)}`:apiUrl;
+
+  fetch(url)
   .then(r=>r.json())
   .then(data=>{
+
     listContainer.innerHTML='';
 
     if(!data.length){
-      listContainer.innerHTML='<div class="message">لا توجد ملفات في هذا القسم 📂</div>';
+      listContainer.innerHTML='<div class="message">لا توجد عناصر</div>';
       return;
     }
 
     if(!folder){
+
       data.filter(i=>i.type==='folder').forEach(f=>{
         const div=document.createElement('div');
         div.className='item-card';
         div.textContent='📁 '+f.name;
-
         div.onclick=()=>loadContent(f.path);
         listContainer.appendChild(div);
       });
-    }
-    else{
-      audioFiles=data.filter(i=>/\.(mp3|wav|ogg)$/i.test(i.name));
+
+    }else{
+
+      audioFiles=data.filter(i=>i.type==='file' && /\.(mp3|wav|ogg)$/i.test(i.name));
       renderAudioList(audioFiles);
     }
-
-    restoreScroll();
   });
 }
 
 
-/* ========= عرض القائمة ========= */
+/* ===== عرض الملفات ===== */
 
 function renderAudioList(files){
+
   listContainer.innerHTML='';
 
   files.forEach((f,index)=>{
+
     const div=document.createElement('div');
     div.className='item-card';
 
-    const nameSpan=document.createElement('span');
-    nameSpan.textContent='🎵 '+f.name;
+    div.innerHTML=`
+      <span><i class="fa-solid fa-music"></i> &nbsp; ${f.name}</span>
+      <button class="play-button"><i class="fa-solid fa-play"></i></button>
+    `;
 
-    const btn=document.createElement('button');
-    btn.className='play-button';
-    btn.textContent='▶';
+    /* الضغط على البطاقة كلها */
+    div.onclick=()=>playAudio(f.url,f.name,index);
 
-    btn.onclick=(e)=>{
+    /* الزر أيضا */
+    div.querySelector('.play-button').onclick=(e)=>{
       e.stopPropagation();
-      saveScroll();
-      playAudio(f,index,div,btn);
+      playAudio(f.url,f.name,index);
     };
 
-    div.append(nameSpan,btn);
     listContainer.appendChild(div);
   });
 }
 
 
-/* ========= تشغيل الصوت ========= */
+/* ===== تشغيل ===== */
 
-function playAudio(file,index,card,btn){
-
-  document.querySelectorAll('.play-button').forEach(b=>b.textContent='▶');
-
-  btn.textContent='⏳';
-
-  audioElem.pause();
-  audioElem.currentTime=0;
-  audioElem.src=file.url;
-
-  audioElem.play().catch(()=>{});
+function playAudio(url,name,index){
 
   currentIndex=index;
 
-  setActive(card);
-  btn.textContent='⏸';
+  audioElem.pause();
+  audioElem.currentTime=0;
 
-  audioNameElem.textContent=file.name;
+  audioElem.src=url;
+  audioElem.play().catch(()=>{});
+
+  audioNameElem.textContent=name;
+
+  setActive(index);
+
   audioContainer.classList.add('active');
 }
 
 
-/* مدة الملف */
-audioElem.onloadedmetadata=()=>{
-  const d=Math.floor(audioElem.duration);
-  const m=Math.floor(d/60);
-  const s=(d%60).toString().padStart(2,'0');
-  audioNameElem.textContent+=` (${m}:${s})`;
-};
-
-
-/* تشغيل التالي تلقائياً */
+/* التالي تلقائي */
 audioElem.onended=()=>{
   if(audioFiles[currentIndex+1]){
     const next=audioFiles[currentIndex+1];
-    const cards=document.querySelectorAll('.item-card');
-    playAudio(next,currentIndex+1,cards[currentIndex+1],
-      cards[currentIndex+1].querySelector('button'));
+    playAudio(next.url,next.name,currentIndex+1);
   }
+};
+
+
+/* بحث */
+searchInput.oninput=()=>{
+  const q=normalize(searchInput.value);
+  const filtered=audioFiles.filter(f=>normalize(f.name).includes(q));
+  renderAudioList(filtered);
 };
 
 
@@ -300,16 +298,8 @@ closeBtn.onclick=()=>{
   audioElem.pause();
   audioElem.src='';
   audioContainer.classList.remove('active');
+  setActive(-1);
 };
-
-
-/* بحث ذكي */
-searchInput.oninput=()=>{
-  const q=normalize(searchInput.value);
-  const filtered=audioFiles.filter(f=>normalize(f.name).includes(q));
-  renderAudioList(filtered);
-};
-
 
 backBtn.onclick=()=>loadContent('');
 
