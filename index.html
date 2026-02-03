@@ -1,173 +1,150 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<title>المقاطع الصوتية</title>
 
-<link rel="icon" href="https://qaryat.xyz/wp-content/uploads/file_00000000525c61f8afbbc7b590d1c6ef_1749847919915.jpeg">
-
-<title>🎧 مكتبة تاغربوشت الصوتية</title>
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
+
 body{
-  font-family:'Tajawal',sans-serif;
-  background:#f5f7ff;
-  color:#222;
+  font-family: system-ui;
+  background:#f7f7f7;
   margin:0;
-  display:flex;
-  flex-direction:column;
-  min-height:100vh;
 }
 
-header{
-  text-align:center;
-  padding:20px 12px;
-  background:#2563eb;
-  color:#fff;
-  font-size:1.6rem;
-  font-weight:700;
-}
-
-main{
-  flex:1;
-  padding:12px;
-  padding-bottom:110px;
-}
-
-#backBtn{
-  margin:12px;
-  display:none;
-  background:#2563eb;
-  color:#fff;
-  padding:11px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  width:calc(100% - 24px);
+.header{
+  padding:10px;
+  background:#fff;
+  position:sticky;
+  top:0;
+  z-index:10;
+  box-shadow:0 1px 4px rgba(0,0,0,.08);
 }
 
 #searchInput{
+  width:100%;
+  padding:10px;
+  border:1px solid #ddd;
+  border-radius:8px;
   display:none;
-  margin:0 12px 15px;
-  padding:12px;
-  width:calc(100% - 24px);
-  border:1px solid #ccc;
-  border-radius:10px;
 }
 
-#listContainer{
-  display:flex;
-  flex-direction:column;
-  gap:12px;
+#backBtn{
+  display:none;
+  margin-bottom:8px;
 }
 
-/* البطاقات */
+.list-container{
+  padding:10px;
+}
+
 .item-card{
   background:#fff;
-  border-radius:14px;
-  padding:14px 12px;
+  border:1px solid #eee;
+  padding:12px;
+  border-radius:10px;
+  margin-bottom:8px;
   display:flex;
   justify-content:space-between;
   align-items:center;
   cursor:pointer;
-  border:1px solid #e5e7eb;
-  box-shadow:0 3px 10px rgba(0,0,0,.06);
-  transition:.2s;
+  transition:.15s;
 }
 
 .item-card:hover{
-  background:#eef3ff;
+  background:#fafafa;
 }
 
-/* تمييز خفيف فقط للملف النشط */
+/* تمييز خفيف فقط للعنصر الحالي */
 .item-card.active{
   background:#eef3ff;
   border-color:#2563eb;
 }
 
 .play-button{
-  background:#2563eb;
-  color:#fff;
-  padding:10px;
+  background:none;
   border:none;
-  border-radius:8px;
+  font-size:18px;
   cursor:pointer;
+}
+
+#audioPlayerContainer{
+  position:fixed;
+  bottom:-120px;
+  left:0;
+  right:0;
+  background:#fff;
+  padding:10px;
+  box-shadow:0 -2px 10px rgba(0,0,0,.1);
+  transition:.25s;
+}
+
+#audioPlayerContainer.active{
+  bottom:0;
 }
 
 .message{
   text-align:center;
-  padding:40px;
-  color:#555;
+  padding:20px;
 }
 
-/* مشغل الصوت */
-#audioPlayerContainer{
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  background:#1d4ed8;
-  padding:12px;
-  transform:translateY(100%);
-  transition:.35s;
-  color:#fff;
-  border-radius:15px 15px 0 0;
-}
-
-#audioPlayerContainer.active{
-  transform:translateY(0);
-}
-
-.audio-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:6px;
-}
-
-audio{
-  width:100%;
-}
 </style>
 </head>
 
+
+
 <body>
 
-<header>🎧 مكتبة تاغربوشت الصوتية</header>
+<div class="header">
 
-<button id="backBtn">العودة إلى الأقسام</button>
-<input id="searchInput" placeholder="🔍 ابحث عن مقطع صوتي...">
+<button id="backBtn">رجوع</button>
 
-<main>
-  <div id="listContainer" class="message">جاري التحميل...</div>
-</main>
+<input id="searchInput" placeholder="بحث...">
+
+</div>
+
+<div id="listContainer" class="list-container"></div>
+
+
 
 <div id="audioPlayerContainer">
-  <div class="audio-header">
-    <div id="audioFileName"></div>
-    <button id="closePlayerBtn">&times;</button>
-  </div>
-  <audio controls></audio>
+
+<div style="display:flex;gap:8px;align-items:center">
+
+<button id="closePlayerBtn">✕</button>
+
+<div id="audioFileName" style="flex:1"></div>
+
+</div>
+
+<audio controls style="width:100%"></audio>
+
 </div>
 
 
+
 <script>
-const apiUrl='https://qaryat.xyz/list_audio.php';
 
-const listContainer=document.getElementById('listContainer');
-const backBtn=document.getElementById('backBtn');
-const searchInput=document.getElementById('searchInput');
-const audioContainer=document.getElementById('audioPlayerContainer');
-const audioElem=audioContainer.querySelector('audio');
-const audioNameElem=document.getElementById('audioFileName');
-const closeBtn=document.getElementById('closePlayerBtn');
+const apiUrl = 'https://qaryat.xyz/list_audio.php';
 
-let currentFolder='';
-let audioFiles=[];
-let currentIndex=-1;
+const listContainer = document.getElementById('listContainer');
+const backBtn = document.getElementById('backBtn');
+const searchInput = document.getElementById('searchInput');
+
+const audioContainer = document.getElementById('audioPlayerContainer');
+const audioElem = audioContainer.querySelector('audio');
+const audioNameElem = document.getElementById('audioFileName');
+const closeBtn = document.getElementById('closePlayerBtn');
+
+let currentFolder = '';
+let audioFiles = [];
+let currentIndex = -1;
+
 
 
 /* ===== أدوات صغيرة ===== */
@@ -181,20 +158,30 @@ function setActive(index){
     .forEach((c,i)=>c.classList.toggle('active', i===index));
 }
 
+function naturalSort(arr){
+  return arr.sort((a,b)=>
+    a.name.localeCompare(b.name,undefined,{
+      numeric:true,
+      sensitivity:'base'
+    })
+  );
+}
 
-/* ===== تحميل ===== */
+
+
+/* ===== تحميل المحتوى ===== */
 
 function loadContent(folder=''){
 
-  currentFolder=folder;
+  currentFolder = folder;
 
-  backBtn.style.display=folder?'block':'none';
-  searchInput.style.display=folder?'block':'none';
+  backBtn.style.display = folder ? 'block':'none';
+  searchInput.style.display = folder ? 'block':'none';
   searchInput.value='';
 
   listContainer.innerHTML='<div class="message">جاري التحميل...</div>';
 
-  const url=folder?`${apiUrl}?folder=${encodeURIComponent(folder)}`:apiUrl;
+  const url = folder ? apiUrl+'?folder='+encodeURIComponent(folder) : apiUrl;
 
   fetch(url)
   .then(r=>r.json())
@@ -219,14 +206,18 @@ function loadContent(folder=''){
 
     }else{
 
-      audioFiles=data.filter(i=>i.type==='file' && /\.(mp3|wav|ogg)$/i.test(i.name));
+      audioFiles = naturalSort(
+        data.filter(i=>i.type==='file' && /\.(mp3|wav|ogg)$/i.test(i.name))
+      );
+
       renderAudioList(audioFiles);
     }
   });
 }
 
 
-/* ===== عرض الملفات ===== */
+
+/* ===== عرض القائمة ===== */
 
 function renderAudioList(files){
 
@@ -238,14 +229,12 @@ function renderAudioList(files){
     div.className='item-card';
 
     div.innerHTML=`
-      <span><i class="fa-solid fa-music"></i> &nbsp; ${f.name}</span>
+      <span><i class="fa-solid fa-music"></i> ${f.name}</span>
       <button class="play-button"><i class="fa-solid fa-play"></i></button>
     `;
 
-    /* الضغط على البطاقة كلها */
     div.onclick=()=>playAudio(f.url,f.name,index);
 
-    /* الزر أيضا */
     div.querySelector('.play-button').onclick=(e)=>{
       e.stopPropagation();
       playAudio(f.url,f.name,index);
@@ -254,6 +243,7 @@ function renderAudioList(files){
     listContainer.appendChild(div);
   });
 }
+
 
 
 /* ===== تشغيل ===== */
@@ -276,7 +266,9 @@ function playAudio(url,name,index){
 }
 
 
-/* التالي تلقائي */
+
+/* ===== التالي تلقائي ===== */
+
 audioElem.onended=()=>{
   if(audioFiles[currentIndex+1]){
     const next=audioFiles[currentIndex+1];
@@ -285,15 +277,23 @@ audioElem.onended=()=>{
 };
 
 
-/* بحث */
+
+/* ===== بحث ===== */
+
 searchInput.oninput=()=>{
   const q=normalize(searchInput.value);
-  const filtered=audioFiles.filter(f=>normalize(f.name).includes(q));
+
+  const filtered=audioFiles.filter(f=>
+    normalize(f.name).includes(q)
+  );
+
   renderAudioList(filtered);
 };
 
 
-/* إغلاق */
+
+/* ===== إغلاق ===== */
+
 closeBtn.onclick=()=>{
   audioElem.pause();
   audioElem.src='';
@@ -304,6 +304,7 @@ closeBtn.onclick=()=>{
 backBtn.onclick=()=>loadContent('');
 
 loadContent();
+
 </script>
 
 </body>
