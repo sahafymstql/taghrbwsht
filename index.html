@@ -149,10 +149,16 @@ const closeBtn=document.getElementById('closePlayerBtn');
 let audioFiles=[];
 let currentIndex=-1;
 
+/* ===== تحويل الاسم إلى رابط ===== */
+function slugify(name){
+  return encodeURIComponent(name).replace(/%20/g,'_');
+}
+
 /* ===== قراءة الرابط ===== */
 function getFolderFromURL(){
   let path = decodeURIComponent(window.location.pathname);
-  return path === "/" ? "" : path.substring(1);
+  if(path === "/") return "";
+  return path.substring(1).replace(/_/g,' ');
 }
 
 /* ===== بحث عربي ===== */
@@ -201,7 +207,7 @@ function loadContent(folder=''){
         div.textContent='📁 '+f.name;
 
         div.onclick=()=>{
-          history.pushState(null,"","/"+encodeURIComponent(f.name));
+          history.pushState(null,"","/"+slugify(f.name));
           loadContent(f.path);
         };
 
