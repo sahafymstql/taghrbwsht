@@ -19,6 +19,11 @@
   box-sizing:border-box;
 }
 
+html,body{
+  width:100%;
+  overflow-x:hidden;
+}
+
 body{
   font-family:'Tajawal',sans-serif;
   background:#f5f7ff;
@@ -26,25 +31,30 @@ body{
   display:flex;
   flex-direction:column;
   min-height:100vh;
-  overflow-x:hidden;
 }
 
+/* ===== الهيدر (تم إصلاحه) ===== */
 header{
+  width:100%;
+  max-width:100%;
   text-align:center;
-  padding:18px 10px;
+  padding:16px 10px;
   background:#2563eb;
   color:#fff;
-  font-size:1.4rem;
+  font-size:1.3rem;
   font-weight:700;
-  line-height:1.4;
+  line-height:1.5;
+  overflow:hidden;
 }
 
+/* ===== المحتوى ===== */
 main{
   flex:1;
   padding:12px;
   padding-bottom:120px;
 }
 
+/* ===== زر الرجوع ===== */
 #backBtn{
   margin:12px;
   display:none;
@@ -57,6 +67,7 @@ main{
   font-size:1rem;
 }
 
+/* ===== البحث ===== */
 #searchInput{
   display:none;
   margin:0 12px 15px;
@@ -67,13 +78,17 @@ main{
   font-size:1rem;
 }
 
+/* ===== القائمة ===== */
 #listContainer{
   display:flex;
   flex-direction:column;
   gap:10px;
 }
 
+/* ===== البطاقات (تم إصلاحها) ===== */
 .item-card{
+  width:100%;
+  max-width:100%;
   background:#fff;
   border-radius:14px;
   padding:14px;
@@ -85,18 +100,22 @@ main{
   gap:10px;
 }
 
+/* ===== النص (أهم إصلاح) ===== */
 .item-card span{
   flex:1;
+  min-width:0;
   overflow:hidden;
   text-overflow:ellipsis;
   white-space:nowrap;
 }
 
+/* ===== العنصر النشط ===== */
 .item-card.active{
   background:#eef3ff;
   border-color:#2563eb;
 }
 
+/* ===== زر التشغيل ===== */
 .play-button{
   background:#2563eb;
   color:#fff;
@@ -111,6 +130,7 @@ main{
   padding:40px;
 }
 
+/* ===== مشغل الصوت ===== */
 #audioPlayerContainer{
   position:fixed;
   bottom:0;
@@ -176,7 +196,6 @@ const closeBtn=document.getElementById('closePlayerBtn');
 
 let audioFiles=[];
 let currentIndex=-1;
-
 
 /* ===== slug ===== */
 function slugify(name){
