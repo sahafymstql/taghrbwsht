@@ -14,6 +14,11 @@
 <meta name="description" content="استمع إلى محاضرات ودروس صوتية باللغة العربية من مكتبة تاغربوشت الصوتية">
 
 <style>
+
+*{
+  box-sizing:border-box;
+}
+
 body{
   font-family:'Tajawal',sans-serif;
   background:#f5f7ff;
@@ -21,21 +26,23 @@ body{
   display:flex;
   flex-direction:column;
   min-height:100vh;
+  overflow-x:hidden;
 }
 
 header{
   text-align:center;
-  padding:20px;
+  padding:18px 10px;
   background:#2563eb;
   color:#fff;
-  font-size:1.6rem;
+  font-size:1.4rem;
   font-weight:700;
+  line-height:1.4;
 }
 
 main{
   flex:1;
   padding:12px;
-  padding-bottom:110px;
+  padding-bottom:120px;
 }
 
 #backBtn{
@@ -43,25 +50,27 @@ main{
   display:none;
   background:#2563eb;
   color:#fff;
-  padding:11px;
+  padding:12px;
   border:none;
-  border-radius:8px;
-  width:calc(100% - 24px);
+  border-radius:10px;
+  width:100%;
+  font-size:1rem;
 }
 
 #searchInput{
   display:none;
   margin:0 12px 15px;
   padding:12px;
-  width:calc(100% - 24px);
+  width:100%;
   border:1px solid #ccc;
   border-radius:10px;
+  font-size:1rem;
 }
 
 #listContainer{
   display:flex;
   flex-direction:column;
-  gap:12px;
+  gap:10px;
 }
 
 .item-card{
@@ -73,6 +82,14 @@ main{
   align-items:center;
   border:1px solid #e5e7eb;
   cursor:pointer;
+  gap:10px;
+}
+
+.item-card span{
+  flex:1;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
 }
 
 .item-card.active{
@@ -83,9 +100,10 @@ main{
 .play-button{
   background:#2563eb;
   color:#fff;
-  padding:8px;
+  padding:8px 10px;
   border:none;
   border-radius:8px;
+  flex-shrink:0;
 }
 
 .message{
@@ -110,9 +128,18 @@ main{
   transform:translateY(0);
 }
 
+#audioFileName{
+  font-size:.95rem;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
 audio{
   width:100%;
+  margin-top:6px;
 }
+
 </style>
 </head>
 
@@ -128,7 +155,7 @@ audio{
 </main>
 
 <div id="audioPlayerContainer">
-  <div style="display:flex;justify-content:space-between">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
     <span id="audioFileName"></span>
     <button id="closePlayerBtn">&times;</button>
   </div>
@@ -136,6 +163,7 @@ audio{
 </div>
 
 <script>
+
 const apiUrl='https://qaryat.xyz/list_audio.php';
 
 const listContainer=document.getElementById('listContainer');
@@ -149,7 +177,8 @@ const closeBtn=document.getElementById('closePlayerBtn');
 let audioFiles=[];
 let currentIndex=-1;
 
-/* ===== تحويل الاسم إلى رابط ===== */
+
+/* ===== slug ===== */
 function slugify(name){
   return encodeURIComponent(name).replace(/%20/g,'_');
 }
@@ -161,7 +190,7 @@ function getFolderFromURL(){
   return path.substring(1).replace(/_/g,' ');
 }
 
-/* ===== بحث عربي ===== */
+/* ===== بحث ===== */
 function normalize(s){
   return s.toLowerCase().replace(/[أإآ]/g,'ا');
 }
@@ -173,7 +202,7 @@ function sortFiles(arr){
   );
 }
 
-/* ===== تمييز ===== */
+/* ===== active ===== */
 function setActive(index){
   document.querySelectorAll('.item-card')
     .forEach((c,i)=>c.classList.toggle('active',i===index));
@@ -282,7 +311,7 @@ searchInput.oninput=()=>{
   render(audioFiles.filter(f=>normalize(f.name).includes(q)));
 };
 
-/* ===== رجوع المتصفح ===== */
+/* ===== رجوع ===== */
 window.onpopstate=()=>{
   loadContent(getFolderFromURL());
 };
@@ -302,6 +331,7 @@ backBtn.onclick=()=>{
 
 /* ===== تشغيل أولي ===== */
 loadContent(getFolderFromURL());
+
 </script>
 
 </body>
