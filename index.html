@@ -4,22 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- خط -->
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700&display=swap" rel="stylesheet">
-
-<!-- أيقونات -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-<!-- أيقونة -->
 <link rel="icon" href="https://qaryat.xyz/wp-content/uploads/file_00000000525c61f8afbbc7b590d1c6ef_1749847919915.jpeg">
 
 <title>🎧 مكتبة تاغربوشت الصوتية</title>
 
 <meta name="description" content="استمع إلى محاضرات ودروس صوتية باللغة العربية من مكتبة تاغربوشت الصوتية">
-
-<meta property="og:title" content="🎧 مكتبة تاغربوشت الصوتية">
-<meta property="og:description" content="منصة صوتية تعليمية تحتوي على محاضرات ودروس">
-<meta property="og:image" content="https://i.ibb.co/Pssc6Vm/logo.jpg">
 
 <style>
 body{
@@ -81,11 +73,6 @@ main{
   align-items:center;
   border:1px solid #e5e7eb;
   cursor:pointer;
-  transition:.2s;
-}
-
-.item-card:hover{
-  background:#eef3ff;
 }
 
 .item-card.active{
@@ -162,27 +149,31 @@ const closeBtn=document.getElementById('closePlayerBtn');
 let audioFiles=[];
 let currentIndex=-1;
 
+/* ===== قراءة الرابط ===== */
+function getFolderFromURL(){
+  let path = decodeURIComponent(window.location.pathname);
+  return path === "/" ? "" : path.substring(1);
+}
 
-/* بحث عربي */
+/* ===== بحث عربي ===== */
 function normalize(s){
   return s.toLowerCase().replace(/[أإآ]/g,'ا');
 }
 
-/* ترتيب صحيح */
+/* ===== ترتيب ===== */
 function sortFiles(arr){
   return arr.sort((a,b)=>
     a.name.localeCompare(b.name,'ar',{numeric:true})
   );
 }
 
-/* تمييز */
+/* ===== تمييز ===== */
 function setActive(index){
   document.querySelectorAll('.item-card')
     .forEach((c,i)=>c.classList.toggle('active',i===index));
 }
 
-
-/* تحميل */
+/* ===== تحميل ===== */
 function loadContent(folder=''){
 
   backBtn.style.display=folder?'block':'none';
@@ -208,7 +199,12 @@ function loadContent(folder=''){
         const div=document.createElement('div');
         div.className='item-card';
         div.textContent='📁 '+f.name;
-        div.onclick=()=>loadContent(f.path);
+
+        div.onclick=()=>{
+          history.pushState(null,"","/"+encodeURIComponent(f.name));
+          loadContent(f.path);
+        };
+
         listContainer.appendChild(div);
       });
 
@@ -223,8 +219,7 @@ function loadContent(folder=''){
   });
 }
 
-
-/* عرض */
+/* ===== عرض ===== */
 function render(files){
 
   listContainer.innerHTML='';
@@ -250,8 +245,7 @@ function render(files){
   });
 }
 
-
-/* تشغيل */
+/* ===== تشغيل ===== */
 function play(file,index){
 
   currentIndex=index;
@@ -269,23 +263,25 @@ function play(file,index){
   audioContainer.classList.add('active');
 }
 
-
-/* التالي */
+/* ===== التالي ===== */
 audioElem.onended=()=>{
   if(audioFiles[currentIndex+1]){
     play(audioFiles[currentIndex+1],currentIndex+1);
   }
 };
 
-
-/* بحث */
+/* ===== بحث ===== */
 searchInput.oninput=()=>{
   const q=normalize(searchInput.value);
   render(audioFiles.filter(f=>normalize(f.name).includes(q)));
 };
 
+/* ===== رجوع المتصفح ===== */
+window.onpopstate=()=>{
+  loadContent(getFolderFromURL());
+};
 
-/* إغلاق */
+/* ===== إغلاق ===== */
 closeBtn.onclick=()=>{
   audioElem.pause();
   audioElem.src='';
@@ -293,9 +289,13 @@ closeBtn.onclick=()=>{
   setActive(-1);
 };
 
-backBtn.onclick=()=>loadContent('');
+backBtn.onclick=()=>{
+  history.pushState(null,"","/");
+  loadContent('');
+};
 
-loadContent();
+/* ===== تشغيل أولي ===== */
+loadContent(getFolderFromURL());
 </script>
 
 </body>
